@@ -31,7 +31,8 @@ void* mem_set(void* ptr, uint8_t value, size_t size);
 void* mem_cpy(void* dst, const void* src, size_t size);
 void* str_cpy(void* dst, const void* src);
 void* str_cat(void* dst, const void* src);
-void itoa(uint16_t num, char* str, uint8_t base, char alpha);
+void itoa(uint16_t num, char* str, uint16_t base, char alpha);
+void u8tohex(uint8_t value, char* buffer, char alpha);
 
 /** Implementation */
 
@@ -128,9 +129,14 @@ void* str_cat(void* dst, const void* src) {
 }
 
 // Helper function to convert an integer to a string
-void itoa(uint16_t num, char* str, uint8_t base, char alpha) {
-    uint16_t i = 0;
-    uint16_t is_negative = 0;
+void itoa(uint16_t num, char* str, uint16_t base, char alpha) {
+    uint16_t i = 0, j, k, rem;
+
+    // safety checks
+    if(base < 2 || base > 36) {
+        str[0] = '\0';
+        return;
+    }
 
     // Handle 0 explicitly, otherwise empty string is printed
     if (num == 0) {
@@ -139,32 +145,34 @@ void itoa(uint16_t num, char* str, uint8_t base, char alpha) {
         return;
     }
 
-    // Handle negative numbers only if base is 10
-    if (num < 0 && base == 10) {
-        is_negative = 1;
-        num = -num;
-    }
-
     // Process individual digits
     while (num != 0) {
-        int rem = num % base;
-        str[i++] = (rem > 9) ? (rem - 10) + alpha : rem + '0';
+        rem = num % base;
+        str[i++] = (char)((rem > 9) ? (rem - 10) + alpha : rem + '0');
         num = num / base;
-    }
-
-    // Append negative sign for negative numbers
-    if (is_negative) {
-        str[i++] = '-';
     }
 
     str[i] = '\0';
 
     // Reverse the string
-    for (int j = 0, k = i - 1; j < k; j++, k--) {
+    for (j = 0, k = i - 1; j < k; j++, k--) {
         char temp = str[j];
         str[j] = str[k];
         str[k] = temp;
     }
 }
+
+void u8tohex(uint8_t value, char* buffer, char alpha) {
+    // Convert high nibble
+    uint8_t high = (value >> 4) & 0x0F;
+    buffer[0] = (high < 10) ? ('0' + high) : (alpha + high - 10);
+
+    // Convert low nibble
+    uint8_t low = value & 0x0F;
+    buffer[1] = (low < 10) ? ('0' + low) : (alpha + low - 10);
+
+    buffer[2] = 0; // Null terminator
+}
+
 
 #endif
