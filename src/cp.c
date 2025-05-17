@@ -9,10 +9,16 @@ zos_err_t copy(const char* src, const char* dst) {
     zos_dev_t s, d;
 
     s = open(src, O_RDONLY);
-    if(s < 0) return -s;
+    if(s < 0) {
+        put_s("src: "); put_s(src); put_c(CH_SPACE); put_s("not found\n");
+        return -s;
+    }
 
     d = open(dst, O_WRONLY | O_CREAT);
-    if(d < 0) return -d;
+    if(d < 0) {
+        put_s("dst: "); put_s(dst); put_c(CH_SPACE); put_s("not found\n");
+        return -d;
+    }
 
     char buffer[1024];
     uint16_t size = 1024;;
@@ -29,7 +35,6 @@ zos_err_t copy(const char* src, const char* dst) {
 }
 
 int main(int argc, char** argv) {
-
     if(argc == 1) {
         char *src = argv[0];
         char *dst = NULL;

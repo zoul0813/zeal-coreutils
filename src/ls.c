@@ -20,9 +20,28 @@ zos_stat_t zos_stat;
 list_options_t options;
 uint8_t num_base = 10;
 char num_alpha = 'A';
+uint16_t total_size = 0;
 
 void details(zos_dir_entry_t *entry) {
-    // filename          65386B YYYY-MM-DD HH:mm:ss
+    // drwx  filename          65386B YYYY-MM-DD HH:mm:ss
+
+    if(D_ISDIR(entry->d_flags)) {
+        put_c('d');
+    } else {
+        put_c('-');
+    }
+
+    put_s("rw"); // all files are 'rw' ... for now?
+
+    if(str_ends_with(entry->d_name, ".bin") || str_pos(entry->d_name, '.') < 0) {
+        // assume it's not executable because it isn't a "bin"
+        put_c('x');
+    } else {
+        put_c('-');
+    }
+
+    put_c(CH_SPACE);
+
 
     j = str_len(entry->d_name);
     put_s(entry->d_name);
@@ -33,9 +52,11 @@ void details(zos_dir_entry_t *entry) {
 
     err = stat(entry->d_name, &zos_stat);
 
+    total_size += zos_stat.s_size;
+
     uint32_t filesize32 = zos_stat.s_size;
     char filesize_suffix = 'B';
-    if(filesize32 > KILOBYTE) {
+    if(filesize32 > (KILOBYTE * 64)) {
         filesize32 = filesize32 / KILOBYTE;
         filesize_suffix = 'K';
     }
@@ -61,35 +82,51 @@ void details(zos_dir_entry_t *entry) {
  * x - hex output
  */
 int main(int argc, char **argv) {
-    curdir(cwd);
+    char* params = argv[0];
+
+    char buff[256];
 
     if(argc == 1) {
-        if(argv[0][0] != '-') {
-            put_s(argv[0]);
-            put_c(CH_NEWLINE);
-            exit(0);
+        if(*params == '-') {
+            params++;
+            while(params) {
+                itoa(*params, buff, 16, 'A');
+                switch(*params) {
+                    case 'l': {
+                        options |= List_Details;
+                    } break;
+                    case '1': {
+                        options |= List_Single;
+                    } break;
+                    case 'x': {
+                        options |= List_Hex;
+                        num_base = 16;
+                    } break;
+                    case CH_SPACE: {
+                        while(*params == CH_SPACE) params++;
+                        goto parsed;
+                    } break;
+                }
+                params++;
+            }
+        }
+parsed:
+        while(*params == CH_SPACE) params++;
+        if(*params != 0) {
+            str_cpy(cwd, params);
         }
 
-        char* p = &argv[0];
-        while(p) {
-            switch(*p) {
-                case 'l': {
-                    options |= List_Details;
-                } break;
-                case '1': {
-                    options |= List_Single;
-                } break;
-                case 'x': {
-                    options |= List_Hex;
-                    num_base = 16;
-                } break;
-            }
-            p++;
-        }
+    }
+
+    if(cwd[0] == 0) {
+        curdir(cwd);
     }
 
     dev = opendir(cwd);
-    if(dev < 0) exit(-dev);
+    if(dev < 0) {
+        put_s(cwd); put_s(" not found\n");
+        exit(-dev);
+    }
 
     k = 0;
     while((err = readdir(dev, &dir_entry)) == ERR_SUCCESS) {
@@ -114,6 +151,12 @@ int main(int argc, char **argv) {
     }
     if((options & (List_Single | List_Details)) == 0) {
         if(j < 3) put_c(CH_NEWLINE);
+    }
+    if((options & List_Details)) {
+        put_s("total ");
+        itoa(total_size, buff, 10, 'A');
+        put_s(buff);
+        put_c(CH_NEWLINE);
     }
     return close(dev);
 }

@@ -54,6 +54,6 @@ clean:
 	rm -rf ./$(BIN_DIR) ./$(BUILD_DIR)
 
 run:
-	$(EMU_NATIVE_BIN) -H bin -r $(EMU_NATIVE_ROM) #-t tf.img -e eeprom.img
+	$(EMU_NATIVE_BIN) -H bin -r $(EMU_NATIVE_ROM) -t tf.img -e eeprom.img
 
 native: all run
