@@ -25,8 +25,8 @@ uint16_t put_s(const char* str);
 uint16_t put_c(const char c);
 uint16_t str_len(const char* str);
 int16_t str_pos(const char* str, char c);
-int str_cmp(void* src1, const void* src2);
-int str_ends_with(const char *str, const char *suffix);
+int16_t str_cmp(void* src1, const void* src2);
+int16_t str_ends_with(const char *str, const char *suffix);
 void* mem_set(void* ptr, uint8_t value, size_t size);
 void* mem_cpy(void* dst, const void* src, size_t size);
 void* str_cpy(void* dst, const void* src);
@@ -57,7 +57,7 @@ uint16_t str_len(const char* str)
     return length;
 }
 
-int str_ends_with(const char *str, const char *suffix) {
+int16_t str_ends_with(const char *str, const char *suffix) {
     if(str == NULL || suffix == NULL) return 0;
 
     size_t s_len = str_len(str);
@@ -68,7 +68,7 @@ int str_ends_with(const char *str, const char *suffix) {
     return str_cmp(str + s_len - suffix_len, suffix) == 0;
 }
 
-int str_cmp(void* src1, const void* src2) {
+int16_t str_cmp(void* src1, const void* src2) {
     const uint8_t* s1 = src1;
     const uint8_t* s2 = src2;
 
