@@ -15,9 +15,11 @@ This collection contains the core utilities for interacting with [Zeal 8-Bit OS]
 * mv - move src file to dst file
 * rm - remove/delete a file
 * touch - create an empty file
+* tree - show a directory tree
 
 **The following utilties are not currently implemented:**
 
+* dir
 * less
 * xfer
 

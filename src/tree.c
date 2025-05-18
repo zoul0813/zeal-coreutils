@@ -20,6 +20,10 @@ char filesize[8];
 char filesize_suffix = 'B';
 char errcode[2];
 
+uint16_t total_dirs = 0;
+uint16_t total_files = 0;
+char buffer[8];
+
 void handle_error(zos_err_t code) {
     put_s("ERROR[$");
     u8tohex(code, errcode, 'A');
@@ -40,27 +44,19 @@ zos_err_t tree(const char* path, int depth) {
     while(err == ERR_SUCCESS) {
         err = readdir(d, &next_dir_entry);
 
+        uint8_t is_dir = D_ISDIR(dir_entry.d_flags);
+
         filesize_suffix = 'B';
 
-        // if(D_ISFILE(dir_entry.d_flags)) {
-        //     err = stat(dir_entry.d_name, &zos_stat);
-
-        //     filesize32 = zos_stat.s_size;
-
-        //     if(filesize32 > (KILOBYTE * 64)) {
-        //         filesize32 = filesize32 / KILOBYTE;
-        //         filesize_suffix = 'K';
-        //     }
-        //     filesize16 = filesize32 & 0xFFFF;
-        //     itoa(filesize16, filesize, 10, '0');
-        // }
+        if(is_dir) {
+            total_dirs++;
+        } else {
+            total_files++;
+        }
 
         if(depth != 0) {
             put_c(CH_TREE_TRUNK);
             for(uint8_t i = depth; i > 0; i--) {
-                // if(i < depth) {
-                //     put_c(CH_TREE_TRUNK);
-                // }
                 put_s("   ");
             }
         }
@@ -72,22 +68,15 @@ zos_err_t tree(const char* path, int depth) {
         }
         put_c(CH_TREE_LEAF);
         put_c(CH_SPACE);
-        // if(D_ISFILE(dir_entry.d_flags)) {
-        //     put_c('[');
-        //     put_s(filesize);
-        //     put_c(filesize_suffix);
-        //     put_c(']');
-        //     put_c(CH_SPACE);
-        // }
 
         put_s(dir_entry.d_name);
 
-        if(D_ISDIR(dir_entry.d_flags)) {
+        if(is_dir) {
             put_c('/');
         }
         put_c(CH_NEWLINE);
 
-        if(D_ISDIR(dir_entry.d_flags)) {
+        if(is_dir) {
             chdir(dir_entry.d_name);
             tree(".", depth+1);
             chdir("..");
@@ -106,9 +95,23 @@ check_error:
 }
 
 
-int main(void) {
+int main(int argc, char** argv) {
     curdir(cwd);
-    tree(cwd, 0);
+
+    if(argc == 1) {
+        put_s("chdir: "); put_s(argv[0]); put_c(CH_NEWLINE);
+        chdir(argv[0]);
+    }
+
+    tree(".", 0);
     chdir(cwd);
+
+    itoa(total_dirs, buffer, 10, 'A');
+    put_s(buffer);
+    put_s(" dirs, ");
+    itoa(total_files, buffer, 10, 'A');
+    put_s(buffer);
+    put_s(" files\n");
+
     return ERR_SUCCESS;
 }

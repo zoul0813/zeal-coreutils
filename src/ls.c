@@ -10,7 +10,7 @@ typedef enum {
     List_Hex = 1 << 2,
 } list_options_t;
 
-const char* cwd[PATH_MAX];
+const char* root_path[PATH_MAX];
 zos_dev_t dev;
 zos_err_t err;
 uint16_t i, j, k;
@@ -22,6 +22,7 @@ char num_alpha = 'A';
 uint16_t total_size = 0;
 uint16_t total_entries = 0;
 uint8_t writable = 1;
+char buffer[8];
 
 void details(zos_dir_entry_t *entry) {
     // drwx  filename          65386B YYYY-MM-DD HH:mm:ss
@@ -91,13 +92,10 @@ void details(zos_dir_entry_t *entry) {
 int main(int argc, char **argv) {
     char* params = argv[0];
 
-    char buff[256];
-
     if(argc == 1) {
         if(*params == '-') {
             params++;
             while(params) {
-                itoa(*params, buff, 16, 'A');
                 switch(*params) {
                     case 'l': {
                         options |= List_Details;
@@ -120,18 +118,18 @@ int main(int argc, char **argv) {
 parsed:
         while(*params == CH_SPACE) params++;
         if(*params != 0) {
-            str_cpy(cwd, params);
+            str_cpy(root_path, params);
         }
 
     }
 
-    if(cwd[0] == 0) {
-        curdir(cwd);
+    if(root_path[0] == 0) {
+        curdir(root_path);
     }
 
-    dev = opendir(cwd);
+    dev = opendir(root_path);
     if(dev < 0) {
-        put_s(cwd); put_s(" not found\n");
+        put_s(root_path); put_s(" not found\n");
         exit(-dev);
     }
 
@@ -173,11 +171,11 @@ parsed:
     }
     if((options & List_Details)) {
         put_s("total ");
-        itoa(total_size, buff, 10, 'A');
-        put_s(buff);
+        itoa(total_size, buffer, 10, 'A');
+        put_s(buffer);
         put_s("B, ");
-        itoa(total_entries, buff, 10, 'A');
-        put_s(buff);
+        itoa(total_entries, buffer, 10, 'A');
+        put_s(buffer);
         put_s(" entries\n");
     }
     return close(dev);
