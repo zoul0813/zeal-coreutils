@@ -1,4 +1,3 @@
-// #include <stdio.h>
 #include <zos_errors.h>
 #include <zos_sys.h>
 #include <zos_vfs.h>
@@ -21,6 +20,8 @@ list_options_t options;
 uint8_t num_base = 10;
 char num_alpha = 'A';
 uint16_t total_size = 0;
+uint16_t total_entries = 0;
+uint8_t writable = 1;
 
 void details(zos_dir_entry_t *entry) {
     // drwx  filename          65386B YYYY-MM-DD HH:mm:ss
@@ -31,7 +32,13 @@ void details(zos_dir_entry_t *entry) {
         put_c('-');
     }
 
-    put_s("rw"); // all files are 'rw' ... for now?
+    put_c('r'); // everything is readable
+
+    if(!writable) {
+        put_c('-');
+    } else {
+        put_c('w');
+    }
 
     if(str_ends_with(entry->d_name, ".bin") || str_pos(entry->d_name, '.') < 0) {
         // assume it's not executable because it isn't a "bin"
@@ -129,7 +136,19 @@ parsed:
     }
 
     k = 0;
+    total_entries = 0;
     while((err = readdir(dev, &dir_entry)) == ERR_SUCCESS) {
+        total_entries++;
+        if(total_entries == 1) {
+            // test for O_WRONLY, this doesn't work if the first entry is a directory though ...
+            zos_dev_t wr = open(dir_entry.d_name, O_WRONLY);
+            if(wr < 0 && -wr == ERR_READ_ONLY) {
+                writable = 0;
+            } else {
+                close(wr);
+            }
+        }
+
         if((options & List_Details)) {
             details(&dir_entry);
         } else {
@@ -156,7 +175,10 @@ parsed:
         put_s("total ");
         itoa(total_size, buff, 10, 'A');
         put_s(buff);
-        put_c(CH_NEWLINE);
+        put_s("B, ");
+        itoa(total_entries, buff, 10, 'A');
+        put_s(buff);
+        put_s(" entries\n");
     }
     return close(dev);
 }
