@@ -10,10 +10,6 @@ uint16_t size;
 uint16_t addr;
 char buffer[BUFFER_SIZE];
 
-void put_hex(char c) {
-
-}
-
 int main(int argc, char** argv) {
     if(argc == 0) {
         put_s("usage: echo <string>\n");

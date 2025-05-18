@@ -139,12 +139,11 @@ parsed:
         total_entries++;
         if(total_entries == 1) {
             // test for O_WRONLY, this doesn't work if the first entry is a directory though ...
-            zos_dev_t wr = open(dir_entry.d_name, O_WRONLY);
+            zos_dev_t wr = open(dir_entry.d_name, O_WRONLY | O_APPEND);
             if(wr < 0 && -wr == ERR_READ_ONLY) {
                 writable = 0;
-            } else {
-                close(wr);
             }
+            close(wr);
         }
 
         if((options & List_Details)) {
