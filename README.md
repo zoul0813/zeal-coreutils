@@ -16,6 +16,8 @@ This collection contains the core utilities for interacting with [Zeal 8-Bit OS]
 * rm - remove/delete a file
 * touch - create an empty file
 * tree - show a directory tree
+* du - show size of each directory
+* crc32 - print the crc32 of each file argument
 
 **The following utilties are not currently implemented:**
 

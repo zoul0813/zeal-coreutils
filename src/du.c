@@ -11,10 +11,8 @@
 const char* cwd[PATH_MAX];
 
 zos_dir_entry_t dir_entry;
-zos_dir_entry_t next_dir_entry;
+zos_stat_t zos_stat;
 
-uint32_t filesize32;
-uint16_t filesize16;
 char filesize[8];
 char filesize_suffix = 'B';
 char errcode[2];
@@ -35,60 +33,60 @@ zos_err_t tree(const char* path, int depth) {
     zos_dev_t d;
     zos_err_t err;
 
+    uint32_t filesize32;
+
     d = opendir(path);
     if(d < 0) return -d;
 
-    err = readdir(d, &dir_entry);
-
-    while(err == ERR_SUCCESS) {
-        err = readdir(d, &next_dir_entry);
-
+    while((err = readdir(d, &dir_entry)) == ERR_SUCCESS) {
         uint8_t is_dir = D_ISDIR(dir_entry.d_flags);
-
-        filesize_suffix = 'B';
 
         if(is_dir) {
             total_dirs++;
-        } else {
-            total_files++;
-        }
-
-        if(depth != 0) {
-            put_c(CH_TREE_TRUNK);
-            for(uint8_t i = depth; i > 0; i--) {
-                put_s("   ");
-            }
-        }
-
-        if(err != ERR_SUCCESS) {
-            put_c(CH_TREE_LAST);
-        } else {
-            put_c(CH_TREE_BRANCH);
-        }
-        put_c(CH_TREE_LEAF);
-        put_c(CH_SPACE);
-
-        put_s(dir_entry.d_name);
-
-        if(is_dir) {
-            put_c('/');
-        }
-        put_c(CH_NEWLINE);
-
-        if(is_dir) {
             chdir(dir_entry.d_name);
             tree(".", depth+1);
             chdir("..");
+        } else {
+            total_files++;
+            zos_err_t serr = stat(dir_entry.d_name, &zos_stat);
+            if(serr != ERR_SUCCESS) {
+                put_s("stat failed: ");
+                put_s(zos_stat.s_name);
+                put_c(CH_NEWLINE);
+                handle_error(serr);
+            }
+            filesize32 += zos_stat.s_size;
         }
-
-        // current = next
-        mem_cpy(&dir_entry, &next_dir_entry, sizeof(zos_dir_entry_t));
     }
 
 check_error:
     if(err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }
+
+    char filesize_suffix = 'B';
+    if(filesize32 > (KILOBYTE * 64)) {
+        filesize32 = filesize32 / KILOBYTE;
+        filesize_suffix = 'K';
+    }
+
+    filesize_suffix = 'B';
+    uint16_t filesize16 = filesize32 & 0xFFFF;
+
+    char filesize[8];
+    itoa(filesize16, filesize, 10, '0');
+    put_s(filesize);
+    put_c(filesize_suffix);
+
+    uint8_t i, len;
+    len = str_len(filesize);
+    for(i = len; i < 8; i++) {
+        put_c(CH_SPACE);
+    }
+
+    curdir(buffer);
+    put_s(buffer);
+    put_c(CH_NEWLINE);
 
     return close(d);
 }
