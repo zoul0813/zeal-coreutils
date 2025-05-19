@@ -168,7 +168,7 @@ parsed:
     }
 
     if((options & (List_Single | List_Details)) == 0) {
-        if(k < 3) put_c(CH_NEWLINE);
+        if(k < 5) put_c(CH_NEWLINE);
     }
 
     // put_s("\nk = "); put_c('0' + k); put_s("\n");
