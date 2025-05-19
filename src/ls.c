@@ -162,12 +162,17 @@ parsed:
             }
         }
     }
+
     if(err != ERR_NO_MORE_ENTRIES) {
         exit(err);
     }
+
     if((options & (List_Single | List_Details)) == 0) {
-        if(j < 3) put_c(CH_NEWLINE);
+        if(k < 3) put_c(CH_NEWLINE);
     }
+
+    // put_s("\nk = "); put_c('0' + k); put_s("\n");
+
     if((options & List_Details)) {
         put_s("total ");
         itoa(total_size, buffer, 10, 'A');
@@ -177,5 +182,6 @@ parsed:
         put_s(buffer);
         put_s(" entries\n");
     }
+
     return close(dev);
 }
