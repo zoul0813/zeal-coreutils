@@ -8,5 +8,6 @@ assets/*.zt[spm]
 zeal.ini
 tmp/
 build/
+assets/
 
 *.img

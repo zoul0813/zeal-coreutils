@@ -8,16 +8,17 @@ This collection contains the core utilities for interacting with [Zeal 8-Bit OS]
 
 * cat - output the contents of a file to the terminal
 * cp - copy src file to dst file
+* crc32 - print the crc32 of each file argument
+* du - show size of each directory
 * echo - echo the arguments to the terminal
 * hexdump - output the contents of a file to the terminal in hex format
 * ls - list a directory
 * mkdir - make a directory
 * mv - move src file to dst file
 * rm - remove/delete a file
+* setfont - allows you to change terminal fonts
 * touch - create an empty file
 * tree - show a directory tree
-* du - show size of each directory
-* crc32 - print the crc32 of each file argument
 
 **The following utilties are not currently implemented:**
 
