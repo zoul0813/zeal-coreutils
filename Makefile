@@ -1,6 +1,3 @@
-EMU_NATIVE_BIN=../../zeal8bit/Zeal-NativeEmulator/builddir/zeal.elf
-EMU_NATIVE_ROM=../../zeal8bit/Zeal-NativeEmulator/roms/default.img
-
 ifndef ZOS_PATH
     $(error "Failure: ZOS_PATH variable not found. It must point to Zeal 8-bit OS path.")
 endif
@@ -60,6 +57,6 @@ clean:
 	rm -rf ./$(BIN_DIR) ./$(BUILD_DIR)
 
 run:
-	$(EMU_NATIVE_BIN) -H bin -r $(EMU_NATIVE_ROM) -t tf.img -e eeprom.img
+	zeal-native -H bin -r $(ZEAL_NATIVE_ROM) -t tf.img -e eeprom.img
 
 native: all run

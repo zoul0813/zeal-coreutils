@@ -84,11 +84,18 @@ void details(zos_dir_entry_t *entry) {
 }
 
 /**
- * usage: ls [-options]
- * l - list details
- * 1 - 1 entry per line
- * x - hex output
+ * usage: ls [-options] [path]
+ *   l - list details
+ *   1 - 1 entry per line
+ *   x - hex output
  */
+void usage(void) {
+    put_s("usage: ls [-options] [path]"); put_c('\n');
+    put_s("  l - list details"); put_c('\n');
+    put_s("  1 - 1 entry per line"); put_c('\n');
+    put_s("  x - hex output"); put_c('\n');
+}
+
 int main(int argc, char **argv) {
     char* params = argv[0];
 
@@ -107,9 +114,19 @@ int main(int argc, char **argv) {
                         options |= List_Hex;
                         num_base = 16;
                     } break;
-                    case CH_SPACE: {
-                        while(*params == CH_SPACE) params++;
+                    case 'h': {
+                        usage();
+                        return ERR_SUCCESS;
+                    } break;
+                    case '\0':
+                    case CH_SPACE:
                         goto parsed;
+                    default: {
+                        put_s("invalid option: ");
+                        put_c(*params);
+                        put_c('\n');
+                        usage();
+                        return ERR_INVALID_PARAMETER;
                     } break;
                 }
                 params++;
@@ -126,6 +143,7 @@ parsed:
     if(root_path[0] == 0) {
         curdir(root_path);
     }
+
 
     dev = opendir(root_path);
     if(dev < 0) {
