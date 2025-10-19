@@ -51,14 +51,22 @@ void details(zos_dir_entry_t *entry) {
     put_c(CH_SPACE);
 
 
-    j = str_len(entry->d_name);
-    put_s(entry->d_name);
+    j = min(str_len(entry->d_name), FILENAME_LEN_MAX);
+    put_sn(entry->d_name, FILENAME_LEN_MAX);
 
     for(i = 0; i < FILENAME_LEN_MAX - j; i++) {
         put_c(CH_SPACE);
     }
 
+    put_c(CH_SPACE);
+    put_c(CH_SPACE);
+
     err = stat(entry->d_name, &zos_stat);
+    if(err) {
+        put_s("    error");
+        put_c(CH_NEWLINE);
+        return;
+    }
 
     total_size += zos_stat.s_size;
 
@@ -73,12 +81,13 @@ void details(zos_dir_entry_t *entry) {
     char filesize[8];
     itoa(filesize16, filesize, num_base, num_alpha);
 
-    j = str_len(filesize);
+    j = min(str_len(filesize), 8);
     for(;j < 8; j++) {
         put_c(CH_SPACE);
     }
 
-    put_s(filesize);
+
+    put_sn(filesize, 8);
     put_c(filesize_suffix);
     put_c(CH_NEWLINE);
 }
@@ -90,10 +99,10 @@ void details(zos_dir_entry_t *entry) {
  *   x - hex output
  */
 void usage(void) {
-    put_s("usage: ls [-options] [path]"); put_c('\n');
-    put_s("  l - list details"); put_c('\n');
-    put_s("  1 - 1 entry per line"); put_c('\n');
-    put_s("  x - hex output"); put_c('\n');
+    put_s("usage: ls [-options] [path]"); put_c(CH_NEWLINE);
+    put_s("  l - list details"); put_c(CH_NEWLINE);
+    put_s("  1 - 1 entry per line"); put_c(CH_NEWLINE);
+    put_s("  x - hex output"); put_c(CH_NEWLINE);
 }
 
 int main(int argc, char **argv) {
@@ -124,7 +133,7 @@ int main(int argc, char **argv) {
                     default: {
                         put_s("invalid option: ");
                         put_c(*params);
-                        put_c('\n');
+                        put_c(CH_NEWLINE);
                         usage();
                         return ERR_INVALID_PARAMETER;
                     } break;
@@ -147,7 +156,7 @@ parsed:
 
     dev = opendir(root_path);
     if(dev < 0) {
-        put_s(root_path); put_s(" not found\n");
+        put_sn(root_path, PATH_MAX); put_s(" not found\n");
         exit(-dev);
     }
 
@@ -167,16 +176,19 @@ parsed:
         if((options & List_Details)) {
             details(&dir_entry);
         } else {
-            j = str_len(dir_entry.d_name);
-            put_s(dir_entry.d_name);
+            j = min(str_len(dir_entry.d_name), FILENAME_LEN_MAX);
+            put_sn(dir_entry.d_name, FILENAME_LEN_MAX);
             if((options & List_Single)) {
                 put_c(CH_NEWLINE);
             } else {
-                for(i = 0; i < FILENAME_LEN_MAX - j; i++) {
+                for(i = 0; i < (FILENAME_LEN_MAX + 2) - j; i++) {
                     put_c(CH_SPACE);
                 }
                 k++;
                 if(k > 4) k = 0;
+            }
+            if((total_entries % 4) == 0) {
+                put_c(CH_NEWLINE);
             }
         }
     }
@@ -188,8 +200,6 @@ parsed:
     if((options & (List_Single | List_Details)) == 0) {
         if(k < 5) put_c(CH_NEWLINE);
     }
-
-    // put_s("\nk = "); put_c('0' + k); put_s("\n");
 
     if((options & List_Details)) {
         put_s("total ");

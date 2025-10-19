@@ -68,7 +68,7 @@ zos_err_t tree(const char* path, int depth) {
         put_c(CH_TREE_LEAF);
         put_c(CH_SPACE);
 
-        put_s(dir_entry.d_name);
+        put_sn(dir_entry.d_name, FILENAME_LEN_MAX);
 
         if(is_dir) {
             put_c('/');

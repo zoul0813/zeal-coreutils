@@ -36,11 +36,27 @@ void u8tohex(uint8_t value, char* buffer, char alpha);
 
 /** Implementation */
 
-uint16_t put_s(const char* str) {
-    uint16_t size = str_len(str);
-    zos_err_t err = write(DEV_STDOUT, str, &size);
+uint16_t put_sn(const char* str, uint16_t size) {
+    uint16_t l = str_len(str);
+    uint16_t s = l;
+    if(l > size) s = size;
+    zos_err_t err = write(DEV_STDOUT, str, &s);
     if(err != ERR_SUCCESS) exit(err);
     return size;
+}
+
+uint16_t put_s(const char* str) {
+    return put_sn(str, UINT16_MAX);
+}
+
+uint16_t max(uint16_t a, uint16_t b) {
+    if(a > b) return a;
+    return b;
+}
+
+uint16_t min(uint16_t a, uint16_t b) {
+    if(a < b) return a;
+    return b;
 }
 
 uint16_t put_c(const char c) {
