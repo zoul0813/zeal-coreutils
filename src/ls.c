@@ -10,7 +10,8 @@ typedef enum {
     List_Hex = 1 << 2,
 } list_options_t;
 
-const char* root_path[PATH_MAX];
+char* root_path[PATH_MAX];
+char* path[PATH_MAX];
 zos_dev_t dev;
 zos_err_t err;
 uint16_t i, j, k;
@@ -61,9 +62,17 @@ void details(zos_dir_entry_t *entry) {
     put_c(CH_SPACE);
     put_c(CH_SPACE);
 
-    err = stat(entry->d_name, &zos_stat);
+    str_cpy(path, root_path);
+    str_cat(path, entry->d_name);
+
+    err = stat(path, &zos_stat);
     if(err) {
         put_s("    error");
+        itoa(err, buffer, num_base, num_alpha);
+        put_c(CH_SPACE);
+        put_s(buffer);
+        put_c(CH_SPACE);
+        put_s(path);
         put_c(CH_NEWLINE);
         return;
     }

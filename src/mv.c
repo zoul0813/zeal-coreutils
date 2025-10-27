@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
         if(err != ERR_SUCCESS) exit(err);
         return rm(src);
     } else {
-        put_s("usage: cp <src> <dst>\n");
+        put_s("usage: mv <src> <dst>\n");
     }
 
     return ERR_INVALID_PARAMETER;
