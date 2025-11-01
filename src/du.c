@@ -8,7 +8,7 @@
 #define CH_TREE_LAST    192
 #define CH_TREE_TRUNK   179
 
-const char* cwd[PATH_MAX];
+char cwd[PATH_MAX];
 
 zos_dir_entry_t dir_entry;
 zos_stat_t zos_stat;
@@ -29,13 +29,19 @@ void handle_error(zos_err_t code) {
     exit(code);
 }
 
-zos_err_t tree(const char* path, int depth) {
+zos_err_t tree(char* path, int depth) {
     zos_dev_t d;
     zos_err_t err;
     uint16_t l = str_len(path);
-    char* last = &path[l];
+    char* last = &path[l - 1];
+    if(*last != '/') {
+        *++last = '/';
+        *++last = '\0';
+        l++;
+    }
+    last = &path[l];
 
-    uint32_t filesize32;
+    uint32_t filesize32 = 0;
 
     d = opendir(path);
     if(d < 0) return -d;
@@ -45,27 +51,26 @@ zos_err_t tree(const char* path, int depth) {
 
         if(is_dir) {
             total_dirs++;
-            if(*last != '/') str_cat(cwd, "/");
-            str_cat(cwd, dir_entry.d_name);
-            tree(cwd, depth+1);
-            *last = '\0';
+            str_cat(path, dir_entry.d_name);
+            tree(path, depth+1);
         } else {
             total_files++;
-            if(*last != '/') str_cat(cwd, "/");
-            str_cat(cwd, dir_entry.d_name);
-            zos_err_t serr = stat(cwd, &zos_stat);
-            *last = '\0';
-            if(serr != ERR_SUCCESS) {
-                put_s("stat failed: ");
-                put_s(zos_stat.s_name);
-                put_c(CH_NEWLINE);
-                handle_error(serr);
-            }
-            filesize32 += zos_stat.s_size;
+            str_cat(path, dir_entry.d_name);
         }
+
+        err = stat(path, &zos_stat);
+        if(err != ERR_SUCCESS) {
+            put_s("stat failed: ");
+            put_s(zos_stat.s_name);
+            put_c(CH_NEWLINE);
+            handle_error(err);
+        }
+        filesize32 += zos_stat.s_size;
+        *last = '\0';
     }
 
 check_error:
+    *last = '\0';
     if(err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }
