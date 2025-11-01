@@ -11,8 +11,8 @@ typedef enum {
     List_Kilo = 1 << 3,
 } list_options_t;
 
-char* root_path[PATH_MAX];
-char* path[PATH_MAX];
+char root_path[PATH_MAX];
+char path[PATH_MAX];
 zos_dev_t dev;
 zos_err_t err;
 uint16_t i, j, k;
@@ -163,14 +163,38 @@ parsed:
 
     }
 
-    if(root_path[0] == 0) {
+    if(root_path[0] == '\0') {
         curdir(root_path);
     }
 
+    // TODO: unsupported in native at the moment
+    // err = stat(root_path, &zos_stat);
+    // if(err) {
+    //     put_sn(root_path, PATH_MAX); put_s(" not found\n");
+    //     exit(err);
+    // }
+    //
+    // if(D_ISFILE(zos_stat.s_flags)) {
+    //     put_s("is file: "); put_s(root_path); put_c(CH_NEWLINE);
+    //     str_cpy(dir_entry.d_name, zos_stat.s_name);
+    //     dir_entry.d_flags = zos_stat.s_flags;
+    //     uint16_t l = str_len(root_path);
+    //     char *p = &root_path[l-1];
+    //     while(*p-- != '/');
+    //     p+=2;
+    //     *p = '\0';
+    //     details(&dir_entry);
+    //     return ERR_SUCCESS;
+    // }
+
+    uint16_t l = str_len(root_path);
+    if(root_path[l-1] != '/') {
+        str_cat(root_path, "/");
+    }
 
     dev = opendir(root_path);
     if(dev < 0) {
-        put_sn(root_path, PATH_MAX); put_s(" not found\n");
+        put_sn(root_path, PATH_MAX); put_s(" not a dir\n");
         exit(-dev);
     }
 
