@@ -8,6 +8,7 @@ typedef enum {
     List_Details = 1 << 0,
     List_Single = 1 << 1,
     List_Hex = 1 << 2,
+    List_Kilo = 1 << 3,
 } list_options_t;
 
 char* root_path[PATH_MAX];
@@ -81,7 +82,7 @@ void details(zos_dir_entry_t *entry) {
 
     uint32_t filesize32 = zos_stat.s_size;
     char filesize_suffix = 'B';
-    if(filesize32 > (KILOBYTE * 64)) {
+    if(((options & List_Kilo) && filesize32 > KILOBYTE) || (filesize32 > (KILOBYTE * 64))) {
         filesize32 = filesize32 / KILOBYTE;
         filesize_suffix = 'K';
     }
@@ -112,6 +113,7 @@ void usage(void) {
     put_s("  l - list details"); put_c(CH_NEWLINE);
     put_s("  1 - 1 entry per line"); put_c(CH_NEWLINE);
     put_s("  x - hex output"); put_c(CH_NEWLINE);
+    put_s("  k - kilobytes"); put_c(CH_NEWLINE);
 }
 
 int main(int argc, char **argv) {
@@ -131,6 +133,9 @@ int main(int argc, char **argv) {
                     case 'x': {
                         options |= List_Hex;
                         num_base = 16;
+                    } break;
+                    case 'k': {
+                        options |= List_Kilo;
                     } break;
                     case 'h': {
                         usage();
