@@ -109,11 +109,11 @@ void details(zos_dir_entry_t *entry) {
  *   x - hex output
  */
 void usage(void) {
-    put_s("usage: ls [-options] [path]"); put_c(CH_NEWLINE);
-    put_s("  l - list details"); put_c(CH_NEWLINE);
-    put_s("  1 - 1 entry per line"); put_c(CH_NEWLINE);
-    put_s("  x - hex output"); put_c(CH_NEWLINE);
-    put_s("  k - kilobytes"); put_c(CH_NEWLINE);
+    put_s("usage: ls [-options] [path]\n");
+    put_s("  l - list details\n");
+    put_s("  1 - 1 entry per line\n");
+    put_s("  x - hex output\n");
+    put_s("  k - kilobytes\n");
 }
 
 int main(int argc, char **argv) {

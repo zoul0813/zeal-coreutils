@@ -32,6 +32,8 @@ void handle_error(zos_err_t code) {
 zos_err_t tree(const char* path, int depth) {
     zos_dev_t d;
     zos_err_t err;
+    uint16_t l = str_len(path);
+    char* last = &path[l];
 
     uint32_t filesize32;
 
@@ -43,12 +45,16 @@ zos_err_t tree(const char* path, int depth) {
 
         if(is_dir) {
             total_dirs++;
-            chdir(dir_entry.d_name);
-            tree(".", depth+1);
-            chdir("..");
+            if(*last != '/') str_cat(cwd, "/");
+            str_cat(cwd, dir_entry.d_name);
+            tree(cwd, depth+1);
+            *last = '\0';
         } else {
             total_files++;
-            zos_err_t serr = stat(dir_entry.d_name, &zos_stat);
+            if(*last != '/') str_cat(cwd, "/");
+            str_cat(cwd, dir_entry.d_name);
+            zos_err_t serr = stat(cwd, &zos_stat);
+            *last = '\0';
             if(serr != ERR_SUCCESS) {
                 put_s("stat failed: ");
                 put_s(zos_stat.s_name);
@@ -84,8 +90,7 @@ check_error:
         put_c(CH_SPACE);
     }
 
-    curdir(buffer);
-    put_s(buffer);
+    put_s(path);
     put_c(CH_NEWLINE);
 
     return close(d);
@@ -96,11 +101,10 @@ int main(int argc, char** argv) {
     curdir(cwd);
 
     if(argc == 1) {
-         chdir(argv[0]);
+        str_cat(cwd, argv[0]);
     }
 
-    tree(".", 0);
-    chdir(cwd);
+    tree(cwd, 0);
 
     itoa(total_dirs, buffer, 10, 'A');
     put_s(buffer);

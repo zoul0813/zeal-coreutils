@@ -8,7 +8,7 @@
 #define CH_TREE_LAST    192
 #define CH_TREE_TRUNK   179
 
-const char* cwd[PATH_MAX];
+const char* cwd[PATH_MAX+1];
 
 zos_dir_entry_t dir_entry;
 zos_dir_entry_t next_dir_entry;
@@ -34,6 +34,9 @@ void handle_error(zos_err_t code) {
 zos_err_t tree(const char* path, int depth) {
     zos_dev_t d;
     zos_err_t err;
+    uint16_t l = str_len(path);
+    char* last = &path[l];
+
 
     d = opendir(path);
     if(d < 0) return -d;
@@ -76,9 +79,10 @@ zos_err_t tree(const char* path, int depth) {
         put_c(CH_NEWLINE);
 
         if(is_dir) {
-            chdir(dir_entry.d_name);
-            tree(".", depth+1);
-            chdir("..");
+            if(*last != '/') str_cat(cwd, "/");
+            str_cat(cwd, dir_entry.d_name);
+            tree(cwd, depth+1);
+            *last = '\0';
         }
 
         // current = next
@@ -86,6 +90,7 @@ zos_err_t tree(const char* path, int depth) {
     }
 
 check_error:
+    *last = '\0';
     if(err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }
@@ -98,11 +103,10 @@ int main(int argc, char** argv) {
     curdir(cwd);
 
     if(argc == 1) {
-         chdir(argv[0]);
+        str_cpy(cwd, argv[0]);
     }
 
-    tree(".", 0);
-    chdir(cwd);
+    tree(cwd, 0);
 
     itoa(total_dirs, buffer, 10, 'A');
     put_s(buffer);
