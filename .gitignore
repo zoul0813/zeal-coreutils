@@ -1,4 +1,8 @@
 bin/
+build/
+debug/
+lib/
+
 *.zip
 release/
 tmp/
