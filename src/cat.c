@@ -12,7 +12,7 @@ char buffer[BUFFER_SIZE];
 
 int main(int argc, char** argv) {
     if(argc == 0) {
-        put_s("usage: echo <string>\n");
+        put_s("usage: cat <path>\n");
         return ERR_INVALID_PARAMETER;
     }
     if(argc == 1) {
