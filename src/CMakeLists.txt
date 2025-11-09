@@ -54,6 +54,11 @@ add_program(setfont
     ILIBS common
 )
 
+add_program(stat
+    stat.c
+    ILIBS common
+)
+
 add_program(touch
     touch.c
     ILIBS common

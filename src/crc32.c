@@ -24,7 +24,9 @@ static char* split_string(char* current, char** next)
     }
 
     char* it = current;
-    while (*it != ' ' && *it != 0) { it++; }
+    while (*it != ' ' && *it != 0) {
+        it++;
+    }
     *it = 0;
     /* Populate the next string to test */
     *next = ++it;
@@ -51,7 +53,7 @@ static uint32_t calculate_file_crc32(const char* name)
     zvb_crc_initialize(1);
     while (1) {
         size = sizeof(buf);
-        err = read(fd, buf, &size);
+        err  = read(fd, buf, &size);
         if (err != ERR_SUCCESS) {
             put_s("Error reading file ");
             put_s(name);
@@ -67,12 +69,11 @@ static uint32_t calculate_file_crc32(const char* name)
     return zvb_crc_update(NULL, 0);
 }
 
-
-int main(int argc, char** argv) {
-    /* On Zeal 8-bit OS, the argc is either 0 or 1, the strings are not split */
-    if (argc != 1) {
+int main(int argc, char** argv)
+{
+    if (argc == 0) {
         put_s("usage: crc32 <file1> [<file2>] ... [<filen>]\n");
-        return 1;
+        return ERR_INVALID_PARAMETER;
     }
 
     /* Look for the next file */
@@ -81,10 +82,10 @@ int main(int argc, char** argv) {
     while (name) {
         const uint32_t crc32 = calculate_file_crc32(name);
         // printf("%08lx    %s\n", crc32, name);
-        uint8_t *b = (uint8_t *)&crc32; // get the individual bytes from the uint32_t
+        uint8_t* b = (uint8_t*) &crc32; // get the individual bytes from the uint32_t
         char hex[2];
-        for(uint8_t i = 4; i > 0; i--) {
-            u8tohex(b[i-1], hex, 'a');
+        for (uint8_t i = 4; i > 0; i--) {
+            u8tohex(b[i - 1], hex, 'a');
             put_s(hex);
         }
         put_s("    ");
@@ -98,4 +99,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-

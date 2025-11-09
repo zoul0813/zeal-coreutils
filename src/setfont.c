@@ -28,37 +28,37 @@ inline void text_demap_vram(void)
     __asm__("ei");
 }
 
-
-int main(int argc, char** argv) {
-    if(argc == 0) {
+int main(int argc, char** argv)
+{
+    if (argc == 0) {
         put_s("usage: setfont <font.f12>\n");
         return ERR_INVALID_PARAMETER;
     }
-    if(argc == 1) {
-        dev = open(argv[0], O_RDONLY);
-        if(dev < 0) {
-            put_s(argv[0]); put_s(" not found\n");
-            return -dev;
-        }
 
-        size = BUFFER_SIZE;
-        err = read(dev, buffer, &size);
-        if(err != ERR_SUCCESS) {
-            put_s(argv[0]); put_s(" failed to read\n");
-            return err;
-        }
-        err = close(dev);
-        if(err != ERR_SUCCESS) {
-            put_s(argv[0]); put_s(" failed to close\n");
-            return err;
-        }
+    dev = open(argv[0], O_RDONLY);
+    if (dev < 0) {
+        put_s(argv[0]);
+        put_s(" not found\n");
+        return -dev;
+    }
 
-        text_map_vram();
-        mem_cpy(FONT, buffer, size);
-        text_demap_vram();
-
+    size = BUFFER_SIZE;
+    err  = read(dev, buffer, &size);
+    if (err != ERR_SUCCESS) {
+        put_s(argv[0]);
+        put_s(" failed to read\n");
+        return err;
+    }
+    err = close(dev);
+    if (err != ERR_SUCCESS) {
+        put_s(argv[0]);
+        put_s(" failed to close\n");
         return err;
     }
 
-    return ERR_SUCCESS;
+    text_map_vram();
+    mem_cpy(FONT, buffer, size);
+    text_demap_vram();
+
+    return err;
 }

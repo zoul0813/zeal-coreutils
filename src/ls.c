@@ -6,9 +6,10 @@
 
 typedef enum {
     List_Details = 1 << 0,
-    List_Single = 1 << 1,
-    List_Hex = 1 << 2,
-    List_Kilo = 1 << 3,
+    List_Single  = 1 << 1,
+    List_Hex     = 1 << 2,
+    List_Kilo    = 1 << 3,
+    List_Date    = 1 << 4,
 } list_options_t;
 
 char root_path[PATH_MAX];
@@ -19,17 +20,18 @@ uint16_t i, j, k;
 zos_dir_entry_t dir_entry;
 zos_stat_t zos_stat;
 list_options_t options;
-uint8_t num_base = 10;
-char num_alpha = 'A';
-uint16_t total_size = 0;
+uint8_t num_base       = 10;
+char num_alpha         = 'A';
+uint16_t total_size    = 0;
 uint16_t total_entries = 0;
-uint8_t writable = 1;
+uint8_t writable       = 1;
 char buffer[8];
 
-void details(zos_dir_entry_t *entry) {
+void details(zos_dir_entry_t* entry)
+{
     // drwx  filename          65386B YYYY-MM-DD HH:mm:ss
 
-    if(D_ISDIR(entry->d_flags)) {
+    if (D_ISDIR(entry->d_flags)) {
         put_c('d');
     } else {
         put_c('-');
@@ -37,13 +39,13 @@ void details(zos_dir_entry_t *entry) {
 
     put_c('r'); // everything is readable
 
-    if(!writable) {
+    if (!writable) {
         put_c('-');
     } else {
         put_c('w');
     }
 
-    if(str_ends_with(entry->d_name, ".bin") || str_pos(entry->d_name, '.') < 0) {
+    if (str_ends_with(entry->d_name, ".bin") || str_pos(entry->d_name, '.') < 0) {
         // assume it's not executable because it isn't a "bin"
         put_c('x');
     } else {
@@ -56,7 +58,7 @@ void details(zos_dir_entry_t *entry) {
     j = min(str_len(entry->d_name), FILENAME_LEN_MAX);
     put_sn(entry->d_name, FILENAME_LEN_MAX);
 
-    for(i = 0; i < FILENAME_LEN_MAX - j; i++) {
+    for (i = 0; i < FILENAME_LEN_MAX - j; i++) {
         put_c(CH_SPACE);
     }
 
@@ -67,7 +69,7 @@ void details(zos_dir_entry_t *entry) {
     str_cat(path, entry->d_name);
 
     err = stat(path, &zos_stat);
-    if(err) {
+    if (err) {
         put_s("    error");
         itoa(err, buffer, num_base, num_alpha);
         put_c(CH_SPACE);
@@ -80,10 +82,10 @@ void details(zos_dir_entry_t *entry) {
 
     total_size += zos_stat.s_size;
 
-    uint32_t filesize32 = zos_stat.s_size;
+    uint32_t filesize32  = zos_stat.s_size;
     char filesize_suffix = 'B';
-    if(((options & List_Kilo) && filesize32 > KILOBYTE) || (filesize32 > (KILOBYTE * 64))) {
-        filesize32 = filesize32 / KILOBYTE;
+    if (((options & List_Kilo) && filesize32 > KILOBYTE) || (filesize32 > (KILOBYTE * 64))) {
+        filesize32      = filesize32 / KILOBYTE;
         filesize_suffix = 'K';
     }
     uint16_t filesize16 = filesize32 & 0xFFFF;
@@ -92,13 +94,38 @@ void details(zos_dir_entry_t *entry) {
     itoa(filesize16, filesize, num_base, num_alpha);
 
     j = min(str_len(filesize), 8);
-    for(;j < 8; j++) {
+    for (; j < 8; j++) {
         put_c(CH_SPACE);
     }
 
 
     put_sn(filesize, 8);
     put_c(filesize_suffix);
+
+    if (options & List_Date) {
+        put_s("   ");
+        itoa_pad(zos_stat.s_date.d_year_h, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        itoa_pad(zos_stat.s_date.d_year_l, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        put_c('-');
+        itoa_pad(zos_stat.s_date.d_month, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        put_c('-');
+        itoa_pad(zos_stat.s_date.d_day, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        put_c(' ');
+        itoa_pad(zos_stat.s_date.d_hours, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        put_c(':');
+        itoa_pad(zos_stat.s_date.d_minutes, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+        put_c(':');
+        itoa_pad(zos_stat.s_date.d_seconds, buffer, 16, 'A', '0', 2);
+        put_s(buffer);
+    }
+
+
     put_c(CH_NEWLINE);
 }
 
@@ -108,22 +135,25 @@ void details(zos_dir_entry_t *entry) {
  *   1 - 1 entry per line
  *   x - hex output
  */
-void usage(void) {
+void usage(void)
+{
     put_s("usage: ls [-options] [path]\n");
     put_s("  l - list details\n");
     put_s("  1 - 1 entry per line\n");
     put_s("  x - hex output\n");
     put_s("  k - kilobytes\n");
+    put_s("  d - show date\n");
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv)
+{
     char* params = argv[0];
 
-    if(argc == 1) {
-        if(*params == '-') {
+    if (argc == 1) {
+        if (*params == '-') {
             params++;
-            while(params) {
-                switch(*params) {
+            while (params) {
+                switch (*params) {
                     case 'l': {
                         options |= List_Details;
                     } break;
@@ -131,19 +161,21 @@ int main(int argc, char **argv) {
                         options |= List_Single;
                     } break;
                     case 'x': {
-                        options |= List_Hex;
-                        num_base = 16;
+                        options  |= List_Hex;
+                        num_base  = 16;
                     } break;
                     case 'k': {
                         options |= List_Kilo;
+                    } break;
+                    case 'd': {
+                        options |= List_Date;
                     } break;
                     case 'h': {
                         usage();
                         return ERR_SUCCESS;
                     } break;
                     case '\0':
-                    case CH_SPACE:
-                        goto parsed;
+                    case CH_SPACE: goto parsed;
                     default: {
                         put_s("invalid option: ");
                         put_c(*params);
@@ -156,14 +188,13 @@ int main(int argc, char **argv) {
             }
         }
 parsed:
-        while(*params == CH_SPACE) params++;
-        if(*params != 0) {
+        while (*params == CH_SPACE) params++;
+        if (*params != 0) {
             str_cpy(root_path, params);
         }
-
     }
 
-    if(root_path[0] == '\0') {
+    if (root_path[0] == '\0') {
         curdir(root_path);
     }
 
@@ -188,58 +219,61 @@ parsed:
     // }
 
     uint16_t l = str_len(root_path);
-    if(root_path[l-1] != '/') {
+    if (root_path[l - 1] != '/') {
         str_cat(root_path, "/");
     }
 
     dev = opendir(root_path);
-    if(dev < 0) {
-        put_sn(root_path, PATH_MAX); put_s(" not a dir\n");
+    if (dev < 0) {
+        put_sn(root_path, PATH_MAX);
+        put_s(" not a dir\n");
         exit(-dev);
     }
 
-    k = 0;
+    k             = 0;
     total_entries = 0;
-    while((err = readdir(dev, &dir_entry)) == ERR_SUCCESS) {
+    while ((err = readdir(dev, &dir_entry)) == ERR_SUCCESS) {
         total_entries++;
-        if(total_entries == 1) {
+        if (total_entries == 1) {
             // test for O_WRONLY, this doesn't work if the first entry is a directory though ...
             zos_dev_t wr = open(dir_entry.d_name, O_WRONLY | O_APPEND);
-            if(wr < 0 && -wr == ERR_READ_ONLY) {
+            if (wr < 0 && -wr == ERR_READ_ONLY) {
                 writable = 0;
             }
             close(wr);
         }
 
-        if((options & List_Details)) {
+        if ((options & List_Details)) {
             details(&dir_entry);
         } else {
             j = min(str_len(dir_entry.d_name), FILENAME_LEN_MAX);
             put_sn(dir_entry.d_name, FILENAME_LEN_MAX);
-            if((options & List_Single)) {
+            if ((options & List_Single)) {
                 put_c(CH_NEWLINE);
             } else {
-                for(i = 0; i < (FILENAME_LEN_MAX + 2) - j; i++) {
+                for (i = 0; i < (FILENAME_LEN_MAX + 2) - j; i++) {
                     put_c(CH_SPACE);
                 }
                 k++;
-                if(k > 4) k = 0;
+                if (k > 4)
+                    k = 0;
             }
-            if((total_entries % 4) == 0) {
+            if ((total_entries % 4) == 0) {
                 put_c(CH_NEWLINE);
             }
         }
     }
 
-    if(err != ERR_NO_MORE_ENTRIES) {
+    if (err != ERR_NO_MORE_ENTRIES) {
         exit(err);
     }
 
-    if((options & (List_Single | List_Details)) == 0) {
-        if(k < 5) put_c(CH_NEWLINE);
+    if ((options & (List_Single | List_Details)) == 0) {
+        if (k < 5)
+            put_c(CH_NEWLINE);
     }
 
-    if((options & List_Details)) {
+    if ((options & List_Details)) {
         put_s("total ");
         itoa(total_size, buffer, 10, 'A');
         put_s(buffer);

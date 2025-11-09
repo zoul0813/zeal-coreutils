@@ -1,5 +1,6 @@
 add_library(common STATIC
     itoa.c
+    itoa_pad.c
     u8tohex.c
 
     max.c

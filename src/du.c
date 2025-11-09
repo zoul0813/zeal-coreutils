@@ -3,10 +3,10 @@
 
 #include "common.h"
 
-#define CH_TREE_BRANCH  195
-#define CH_TREE_LEAF    196
-#define CH_TREE_LAST    192
-#define CH_TREE_TRUNK   179
+#define CH_TREE_BRANCH 195
+#define CH_TREE_LEAF   196
+#define CH_TREE_LAST   192
+#define CH_TREE_TRUNK  179
 
 char cwd[PATH_MAX];
 
@@ -17,11 +17,12 @@ char filesize[8];
 char filesize_suffix = 'B';
 char errcode[2];
 
-uint16_t total_dirs = 0;
+uint16_t total_dirs  = 0;
 uint16_t total_files = 0;
 char buffer[8];
 
-void handle_error(zos_err_t code) {
+void handle_error(zos_err_t code)
+{
     put_s("ERROR[$");
     u8tohex(code, errcode, 'A');
     put_s(errcode);
@@ -29,12 +30,13 @@ void handle_error(zos_err_t code) {
     exit(code);
 }
 
-zos_err_t tree(char* path, int depth) {
+zos_err_t tree(char* path, int depth)
+{
     zos_dev_t d;
     zos_err_t err;
     uint16_t l = str_len(path);
     char* last = &path[l - 1];
-    if(*last != '/') {
+    if (*last != '/') {
         *++last = '/';
         *++last = '\0';
         l++;
@@ -44,44 +46,45 @@ zos_err_t tree(char* path, int depth) {
     uint32_t filesize32 = 0;
 
     d = opendir(path);
-    if(d < 0) return -d;
+    if (d < 0)
+        return -d;
 
-    while((err = readdir(d, &dir_entry)) == ERR_SUCCESS) {
+    while ((err = readdir(d, &dir_entry)) == ERR_SUCCESS) {
         uint8_t is_dir = D_ISDIR(dir_entry.d_flags);
 
-        if(is_dir) {
+        if (is_dir) {
             total_dirs++;
             str_cat(path, dir_entry.d_name);
-            tree(path, depth+1);
+            tree(path, depth + 1);
         } else {
             total_files++;
             str_cat(path, dir_entry.d_name);
         }
 
         err = stat(path, &zos_stat);
-        if(err != ERR_SUCCESS) {
+        if (err != ERR_SUCCESS) {
             put_s("stat failed: ");
             put_s(zos_stat.s_name);
             put_c(CH_NEWLINE);
             handle_error(err);
         }
         filesize32 += zos_stat.s_size;
-        *last = '\0';
+        *last       = '\0';
     }
 
 check_error:
     *last = '\0';
-    if(err != ERR_NO_MORE_ENTRIES) {
+    if (err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }
 
     char filesize_suffix = 'B';
-    if(filesize32 > (KILOBYTE * 64)) {
-        filesize32 = filesize32 / KILOBYTE;
+    if (filesize32 > (KILOBYTE * 64)) {
+        filesize32      = filesize32 / KILOBYTE;
         filesize_suffix = 'K';
     }
 
-    filesize_suffix = 'B';
+    filesize_suffix     = 'B';
     uint16_t filesize16 = filesize32 & 0xFFFF;
 
     char filesize[8];
@@ -91,7 +94,7 @@ check_error:
 
     uint8_t i, len;
     len = str_len(filesize);
-    for(i = len; i < 8; i++) {
+    for (i = len; i < 8; i++) {
         put_c(CH_SPACE);
     }
 
@@ -101,11 +104,11 @@ check_error:
     return close(d);
 }
 
-
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
     curdir(cwd);
 
-    if(argc == 1) {
+    if (argc == 1) {
         str_cat(cwd, argv[0]);
     }
 

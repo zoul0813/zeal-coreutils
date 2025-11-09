@@ -26,15 +26,17 @@ uint8_t output[BUFFER_SIZE];
  * -s - skip offset bytes
  */
 
-int main(int argc, char** argv) {
-    if(argc == 0) {
+int main(int argc, char** argv)
+{
+    if (argc == 0) {
         put_s("usage: hexdump <string>\n");
-        exit(ERR_INVALID_PARAMETER);
+        return ERR_INVALID_PARAMETER;
     }
 
     dev = open(argv[0], O_RDONLY);
-    if(dev < 0) {
-        put_s(argv[0]); put_s(" not found\n");
+    if (dev < 0) {
+        put_s(argv[0]);
+        put_s(" not found\n");
         return -dev;
     }
 
@@ -46,16 +48,18 @@ int main(int argc, char** argv) {
         //
         itoa(addr, output, 16, 'A');
         j = str_len(output);
-        for(; j < 4; j++ ) {
+        for (; j < 4; j++) {
             put_c('0');
         }
-        put_s(output); put_s(": ");
+        put_s(output);
+        put_s(": ");
 
         size = BUFFER_SIZE;
-        err = read(dev, buffer, &size);
-        if(size < 1) break;
+        err  = read(dev, buffer, &size);
+        if (size < 1)
+            break;
 
-        for(i = 0; i < size; i++) {
+        for (i = 0; i < size; i++) {
             u8tohex(buffer[i], output, 'A');
             put_s(output);
             put_c(CH_SPACE);
@@ -64,26 +68,29 @@ int main(int argc, char** argv) {
         put_s("   ");
 
         i = size;
-        for(; i < BUFFER_SIZE; i++) {
+        for (; i < BUFFER_SIZE; i++) {
             put_s("   ");
         }
 
         i = 0;
-        for(; i < size; i++) {
-            if(buffer[i] >= ' ' && buffer[i] <= '~') put_c(buffer[i]);
-            else put_c('.');
+        for (; i < size; i++) {
+            if (buffer[i] >= ' ' && buffer[i] <= '~')
+                put_c(buffer[i]);
+            else
+                put_c('.');
         }
 
         put_c(CH_NEWLINE);
 
         addr += size;
-    } while(err == ERR_SUCCESS && size > 0);
+    } while (err == ERR_SUCCESS && size > 0);
 
     put_c(CH_NEWLINE);
 
     err = close(dev);
-    if(err != ERR_SUCCESS) {
-        put_s(argv[0]); put_s(" error reading\n");
+    if (err != ERR_SUCCESS) {
+        put_s(argv[0]);
+        put_s(" error reading\n");
     }
 
     return err;
