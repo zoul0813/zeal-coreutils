@@ -4,23 +4,79 @@
 
 #define BUFFER_SIZE 1024
 
+typedef enum {
+    Stat_None = 1 << 0,
+    Stat_Dir  = 1 << 1,
+    Stat_File     = 1 << 2
+} stat_options_t;
+
 zos_err_t err;
 zos_stat_t zos_stat;
 char buffer[BUFFER_SIZE];
 
+void usage(void) {
+    put_s("usage: stat [-fd] <path>\n");
+}
+
 int main(int argc, char** argv)
 {
     if (argc == 0) {
-        put_s("usage: stat <path>\n");
+        usage();
         return ERR_INVALID_PARAMETER;
     }
 
-    err = stat(argv[0], &zos_stat);
+    stat_options_t options = Stat_None;
+    char *path;
+    char* params = argv[0];
+    if (argc == 1) {
+        if (*params == '-') {
+            params++;
+            while (params) {
+                switch (*params) {
+                    case 'f': {
+                        options |= Stat_File;
+                    } break;
+                    case 'd': {
+                        options |= Stat_Dir;
+                    } break;
+                    case 'h': {
+                        usage();
+                        return ERR_SUCCESS;
+                    } break;
+                    case '\0':
+                    case CH_SPACE: goto parsed;
+                    default: {
+                        put_s("invalid option: ");
+                        put_c(*params);
+                        put_c(CH_NEWLINE);
+                        usage();
+                        return ERR_INVALID_PARAMETER;
+                    } break;
+                }
+                params++;
+            }
+        }
+parsed:
+        while (*params == CH_SPACE) params++;
+        if (*params != 0) {
+            path = params;
+        }
+    }
+
+
+    err = stat(path, &zos_stat);
     if (err) {
         put_s("ERROR: \n");
-        put_s(argv[0]);
+        put_s(path);
         put_c(CH_NEWLINE);
         return err;
+    }
+
+    if((options & Stat_Dir)) {
+        return D_ISDIR(zos_stat.s_flags) ? ERR_SUCCESS : ERR_NOT_A_DIR;
+    }
+    if((options & Stat_File)) {
+        return D_ISFILE(zos_stat.s_flags) ? ERR_SUCCESS : ERR_NOT_A_FILE;
     }
 
     // zos_stat.s_name
