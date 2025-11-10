@@ -36,9 +36,9 @@ zos_err_t tree(char* path, int depth) {
     zos_err_t err;
     uint16_t l = str_len(path);
     char* last = &path[l - 1];
-    if(*last != '/') {
-        *++last = '/';
-        *++last = '\0';
+    if(*last != PATH_SEP) {
+        *++last = PATH_SEP;
+        *++last = CH_NULL;
         l++;
     }
     last = &path[l];
@@ -79,14 +79,14 @@ zos_err_t tree(char* path, int depth) {
         put_sn(dir_entry.d_name, FILENAME_LEN_MAX);
 
         if(is_dir) {
-            put_c('/');
+            put_c(PATH_SEP);
         }
         put_c(CH_NEWLINE);
 
         if(is_dir) {
             str_cat(path, dir_entry.d_name);
             tree(path, depth+1);
-            *last = '\0';
+            *last = CH_NULL;
         }
 
         // current = next
@@ -94,7 +94,7 @@ zos_err_t tree(char* path, int depth) {
     }
 
 check_error:
-    *last = '\0';
+    *last = CH_NULL;
     if(err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }

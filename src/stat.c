@@ -43,7 +43,7 @@ int main(int argc, char** argv)
                     usage();
                     return ERR_SUCCESS;
                 } break;
-                case '\0':
+                case CH_NULL:
                 case CH_SPACE: goto parsed;
                 default: {
                     put_s("invalid option: ");

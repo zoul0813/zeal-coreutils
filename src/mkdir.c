@@ -8,12 +8,12 @@ typedef enum {
     OPTION_VERBOSE = 2,
 } option_e;
 
-static void usage(void)
+void usage(void)
 {
     put_s("usage: mkdir [-pv] dir_name\n");
 }
 
-static zos_err_t mkdir_recursive(char* path)
+zos_err_t mkdir_recursive(char* path)
 {
     zos_stat_t zos_stat;
     zos_err_t err = stat(path, &zos_stat);
@@ -33,14 +33,14 @@ static zos_err_t mkdir_recursive(char* path)
 create:
     char* last_sep = NULL;
     for (char* p = path; *p; p++) {
-        if (*p == '/' || *p == '\\')
+        if (*p == PATH_SEP)
             last_sep = p;
     }
 
     if (last_sep && last_sep != path) {
         *last_sep = 0;
         err = mkdir_recursive(path);
-        *last_sep = '/';
+        *last_sep = PATH_SEP;
         if (err != ERR_SUCCESS)
             return err;
     }

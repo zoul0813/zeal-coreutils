@@ -36,9 +36,9 @@ zos_err_t tree(char* path, int depth)
     zos_err_t err;
     uint16_t l = str_len(path);
     char* last = &path[l - 1];
-    if (*last != '/') {
-        *++last = '/';
-        *++last = '\0';
+    if (*last != PATH_SEP) {
+        *++last = PATH_SEP;
+        *++last = CH_NULL;
         l++;
     }
     last = &path[l];
@@ -69,11 +69,11 @@ zos_err_t tree(char* path, int depth)
             handle_error(err);
         }
         filesize32 += zos_stat.s_size;
-        *last       = '\0';
+        *last       = CH_NULL;
     }
 
 check_error:
-    *last = '\0';
+    *last = CH_NULL;
     if (err != ERR_NO_MORE_ENTRIES) {
         handle_error(err);
     }

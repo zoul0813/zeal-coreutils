@@ -14,11 +14,14 @@
 #define SCREEN_COL40_WIDTH  40
 #define SCREEN_COL40_HEIGHT 20
 
-#define CH_NEWLINE      0x0A // \n
-#define CH_SPACE        0x20 // Space
-#define CH_TAB          0x09 // \t
-#define CH_PERIOD       0x2E // .
+#define CH_NULL         '\0'
+#define CH_NEWLINE      '\n' // \n
+#define CH_SPACE        ' ' // Space
+#define CH_TAB          '\t' // \t
+#define CH_PERIOD       '.' // .
 
+#define PATH_SEP        '/'
+#define DRIVE_SEP       ':'
 
 /** Definitions */
 uint16_t put_sn(const char* str, uint16_t size);

@@ -155,7 +155,7 @@ int main(int argc, char** argv)
                         usage();
                         return ERR_SUCCESS;
                     } break;
-                    case '\0':
+                    case CH_NULL:
                     case CH_SPACE: goto parsed;
                     default: {
                         put_s("invalid option: ");
@@ -175,7 +175,7 @@ parsed:
         }
     }
 
-    if (root_path[0] == '\0') {
+    if (root_path[0] == CH_NULL) {
         curdir(root_path);
     }
 
@@ -192,15 +192,15 @@ parsed:
     //     dir_entry.d_flags = zos_stat.s_flags;
     //     uint16_t l = str_len(root_path);
     //     char *p = &root_path[l-1];
-    //     while(*p-- != '/');
+    //     while(*p-- != PATH_SEP);
     //     p+=2;
-    //     *p = '\0';
+    //     *p = CH_NULL;
     //     details(&dir_entry);
     //     return ERR_SUCCESS;
     // }
 
     uint16_t l = str_len(root_path);
-    if (root_path[l - 1] != '/') {
+    if (root_path[l - 1] != PATH_SEP) {
         str_cat(root_path, "/");
     }
 
