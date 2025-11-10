@@ -133,7 +133,7 @@ int main(int argc, char** argv)
     if (argc == 1) {
         if (*params == '-') {
             params++;
-            while (params) {
+            while (*params) {
                 switch (*params) {
                     case 'l': {
                         options |= List_Details;

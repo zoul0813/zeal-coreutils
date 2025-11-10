@@ -29,41 +29,38 @@ int main(int argc, char** argv)
     stat_options_t options = Stat_None;
     char* path;
     char* params = argv[0];
-    if (argc == 1) {
-        if (*params == '-') {
-            params++;
-            while (params) {
-                switch (*params) {
-                    case 'f': {
-                        options |= Stat_File;
-                    } break;
-                    case 'd': {
-                        options |= Stat_Dir;
-                    } break;
-                    case 'h': {
-                        usage();
-                        return ERR_SUCCESS;
-                    } break;
-                    case '\0':
-                    case CH_SPACE: goto parsed;
-                    default: {
-                        put_s("invalid option: ");
-                        put_c(*params);
-                        put_c(CH_NEWLINE);
-                        usage();
-                        return ERR_INVALID_PARAMETER;
-                    } break;
-                }
-                params++;
+    if (*params == '-') {
+        params++;
+        while (*params) {
+            switch (*params) {
+                case 'f': {
+                    options |= Stat_File;
+                } break;
+                case 'd': {
+                    options |= Stat_Dir;
+                } break;
+                case 'h': {
+                    usage();
+                    return ERR_SUCCESS;
+                } break;
+                case '\0':
+                case CH_SPACE: goto parsed;
+                default: {
+                    put_s("invalid option: ");
+                    put_c(*params);
+                    put_c(CH_NEWLINE);
+                    usage();
+                    return ERR_INVALID_PARAMETER;
+                } break;
             }
-        }
-parsed:
-        while (*params == CH_SPACE) params++;
-        if (*params != 0) {
-            path = params;
+            params++;
         }
     }
-
+parsed:
+    while (*params == CH_SPACE) params++;
+    if (*params != 0) {
+        path = params;
+    }
 
     err = stat(path, &zos_stat);
     if (err) {
