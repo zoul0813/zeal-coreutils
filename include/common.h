@@ -38,5 +38,7 @@ void itoa(uint16_t num, char* str, uint16_t base, char alpha);
 void itoa_pad(uint16_t num, char* str, uint16_t base, char alpha, char pad, uint8_t size);
 void u8tohex(uint8_t value, char* buffer, char alpha);
 
+void put_date(zos_date_t* date, char *buffer);
+
 
 #endif

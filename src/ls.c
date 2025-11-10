@@ -104,27 +104,8 @@ void details(zos_dir_entry_t* entry)
 
     if (options & List_Date) {
         put_s("   ");
-        itoa_pad(zos_stat.s_date.d_year_h, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        itoa_pad(zos_stat.s_date.d_year_l, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        put_c('-');
-        itoa_pad(zos_stat.s_date.d_month, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        put_c('-');
-        itoa_pad(zos_stat.s_date.d_day, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        put_c(' ');
-        itoa_pad(zos_stat.s_date.d_hours, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        put_c(':');
-        itoa_pad(zos_stat.s_date.d_minutes, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
-        put_c(':');
-        itoa_pad(zos_stat.s_date.d_seconds, buffer, 16, 'A', '0', 2);
-        put_s(buffer);
+        put_date(&zos_stat.s_date, buffer);
     }
-
 
     put_c(CH_NEWLINE);
 }

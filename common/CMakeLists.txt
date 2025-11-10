@@ -3,6 +3,8 @@ add_library(common STATIC
     itoa_pad.c
     u8tohex.c
 
+    date.c
+
     max.c
     min.c
 

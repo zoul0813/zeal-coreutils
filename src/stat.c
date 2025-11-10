@@ -7,14 +7,15 @@
 typedef enum {
     Stat_None = 1 << 0,
     Stat_Dir  = 1 << 1,
-    Stat_File     = 1 << 2
+    Stat_File = 1 << 2
 } stat_options_t;
 
 zos_err_t err;
 zos_stat_t zos_stat;
 char buffer[BUFFER_SIZE];
 
-void usage(void) {
+void usage(void)
+{
     put_s("usage: stat [-fd] <path>\n");
 }
 
@@ -26,7 +27,7 @@ int main(int argc, char** argv)
     }
 
     stat_options_t options = Stat_None;
-    char *path;
+    char* path;
     char* params = argv[0];
     if (argc == 1) {
         if (*params == '-') {
@@ -72,10 +73,10 @@ parsed:
         return err;
     }
 
-    if((options & Stat_Dir)) {
+    if ((options & Stat_Dir)) {
         return D_ISDIR(zos_stat.s_flags) ? ERR_SUCCESS : ERR_NOT_A_DIR;
     }
-    if((options & Stat_File)) {
+    if ((options & Stat_File)) {
         return D_ISFILE(zos_stat.s_flags) ? ERR_SUCCESS : ERR_NOT_A_FILE;
     }
 
@@ -97,25 +98,7 @@ parsed:
 
 
     put_s("Date: ");
-    itoa_pad(zos_stat.s_date.d_year_h, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    itoa_pad(zos_stat.s_date.d_year_l, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    put_c('-');
-    itoa_pad(zos_stat.s_date.d_month, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    put_c('-');
-    itoa_pad(zos_stat.s_date.d_day, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    put_c(' ');
-    itoa_pad(zos_stat.s_date.d_hours, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    put_c(':');
-    itoa_pad(zos_stat.s_date.d_minutes, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
-    put_c(':');
-    itoa_pad(zos_stat.s_date.d_seconds, buffer, 16, 'A', '0', 2);
-    put_s(buffer);
+    put_date(&zos_stat.s_date, buffer);
     put_c(CH_NEWLINE);
 
     return ERR_SUCCESS;
