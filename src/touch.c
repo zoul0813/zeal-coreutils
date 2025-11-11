@@ -8,7 +8,7 @@ zos_dev_t dev;
 int main(int argc, char** argv)
 {
     if (argc == 0) {
-        put_s("usage: touch <dst>\n");
+        put_s("usage: touch <path>\n");
         return ERR_INVALID_PARAMETER;
     }
 

@@ -29,7 +29,7 @@ uint8_t output[BUFFER_SIZE];
 int main(int argc, char** argv)
 {
     if (argc == 0) {
-        put_s("usage: hexdump <string>\n");
+        put_s("usage: hexdump <path>\n");
         return ERR_INVALID_PARAMETER;
     }
 

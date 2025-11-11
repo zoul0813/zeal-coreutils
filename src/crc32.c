@@ -18,8 +18,14 @@
 
 static char* split_string(char* current, char** next)
 {
+    /* Skip leading spaces */
+    while (*current == ' ') {
+        current++;
+    }
+
     /* Make sure the current file is not invalid */
-    if (*current == 0 || *current == ' ') {
+    if (*current == 0) {
+        *next = NULL;
         return NULL;
     }
 
@@ -27,9 +33,18 @@ static char* split_string(char* current, char** next)
     while (*it != ' ' && *it != 0) {
         it++;
     }
-    *it = 0;
-    /* Populate the next string to test */
-    *next = ++it;
+
+    if (*it == ' ') {
+        *it = 0;
+        /* Skip spaces to find next argument */
+        it++;
+        while (*it == ' ') {
+            it++;
+        }
+        *next = (*it == 0) ? NULL : it;
+    } else {
+        *next = NULL; /* No more arguments */
+    }
 
     return current;
 }
@@ -83,15 +98,13 @@ int main(int argc, char** argv)
         const uint32_t crc32 = calculate_file_crc32(name);
         // printf("%08lx    %s\n", crc32, name);
         uint8_t* b = (uint8_t*) &crc32; // get the individual bytes from the uint32_t
-        char hex[2];
+        char hex[3];
         for (uint8_t i = 4; i > 0; i--) {
             u8tohex(b[i - 1], hex, 'a');
             put_s(hex);
         }
-        put_s("    ");
-        put_s("'");
+        put_c(CH_SPACE);
         put_s(name);
-        put_s("'");
         put_c(CH_NEWLINE);
 
         name = split_string(next, &next);

@@ -10,7 +10,7 @@ typedef enum {
 
 void usage(void)
 {
-    put_s("usage: mkdir [-pv] dir_name\n");
+    put_s("usage: mkdir [-pv] <path>\n");
 }
 
 zos_err_t mkdir_recursive(char* path)

@@ -14,7 +14,6 @@ zos_dir_entry_t dir_entry;
 zos_stat_t zos_stat;
 
 char filesize[8];
-char filesize_suffix = 'B';
 char errcode[2];
 
 uint16_t total_dirs  = 0;
@@ -84,7 +83,6 @@ check_error:
         filesize_suffix = 'K';
     }
 
-    filesize_suffix     = 'B';
     uint16_t filesize16 = filesize32 & 0xFFFF;
 
     char filesize[8];

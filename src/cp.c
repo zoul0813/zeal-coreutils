@@ -24,6 +24,7 @@ zos_err_t copy(const char* src, const char* dst)
         put_s(dst);
         put_c(CH_SPACE);
         put_s("not found\n");
+        close(s);
         return -d;
     }
 
@@ -36,10 +37,8 @@ zos_err_t copy(const char* src, const char* dst)
         err = write(d, buffer, &size);
     } while (err == ERR_SUCCESS && size > 0);
 
-    err = close(s);
-    if (err != ERR_SUCCESS)
-        return err;
-    err = close(d);
+    close(s);
+    close(d);
     return err;
 }
 

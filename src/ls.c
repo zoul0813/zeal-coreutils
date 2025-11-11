@@ -238,9 +238,9 @@ parsed:
                 k++;
                 if (k > 4)
                     k = 0;
-            }
-            if ((total_entries % 4) == 0) {
-                put_c(CH_NEWLINE);
+                if ((total_entries % 4) == 0) {
+                    put_c(CH_NEWLINE);
+                }
             }
         }
     }
