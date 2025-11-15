@@ -27,6 +27,7 @@
 uint16_t put_sn(const char* str, uint16_t size);
 uint16_t put_s(const char* str);
 uint16_t put_c(const char c);
+uint16_t put_u8(uint8_t i);
 uint16_t str_len(const char* str);
 int16_t str_ends_with(const char *str, const char *suffix);
 int16_t str_cmp(void* src1, const void* src2);

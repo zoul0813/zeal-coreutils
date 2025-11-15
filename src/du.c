@@ -14,7 +14,7 @@ zos_dir_entry_t dir_entry;
 zos_stat_t zos_stat;
 
 char filesize[8];
-char errcode[2];
+char errcode[3];
 
 uint16_t total_dirs  = 0;
 uint16_t total_files = 0;

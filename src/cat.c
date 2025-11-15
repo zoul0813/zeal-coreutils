@@ -32,6 +32,7 @@ int main(int argc, char** argv)
             err = write(DEV_STDOUT, buffer, &size);
     } while (err == ERR_SUCCESS && size > 0);
     err = close(dev);
+    put_c(CH_NEWLINE);
 
     if (err != ERR_SUCCESS) {
         put_s(argv[0]);

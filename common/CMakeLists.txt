@@ -14,6 +14,7 @@ add_library(common STATIC
     put_c.c
     put_s.c
     put_sn.c
+    put_u8.c
 
     str_cat.c
     str_cmp.c

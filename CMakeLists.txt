@@ -30,7 +30,9 @@ function(add_program target_name)
     add_executable(${target_name} ${ARG_UNPARSED_ARGUMENTS})
     target_include_directories(${target_name} PRIVATE $ENV{ZVB_SDK_PATH}/include)
 
-    target_compile_options(${target_name} PRIVATE --nostdlib)
+    target_compile_options(${target_name} PRIVATE
+        $<$<COMPILE_LANGUAGE:C>:--nostdlib>
+    )
 
     if(ARG_LIBS)
         target_link_libraries(${target_name} PRIVATE ${ARG_LIBS})

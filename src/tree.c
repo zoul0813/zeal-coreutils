@@ -17,7 +17,7 @@ uint32_t filesize32;
 uint16_t filesize16;
 char filesize[8];
 char filesize_suffix = 'B';
-char errcode[2];
+char errcode[3];
 
 uint16_t total_dirs = 0;
 uint16_t total_files = 0;

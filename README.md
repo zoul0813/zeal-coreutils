@@ -12,6 +12,7 @@ This collection contains the core utilities for interacting with [Zeal 8-Bit OS]
 * du - show size of each directory
 * echo - echo the arguments to the terminal
 * hexdump - output the contents of a file to the terminal in hex format
+* less - output contents of a file, one screen at a time
 * ls - list a directory
 * mkdir - make a directory
 * mv - move src file to dst file
@@ -23,9 +24,8 @@ This collection contains the core utilities for interacting with [Zeal 8-Bit OS]
 
 **The following utilities are not currently implemented:**
 
-* dir
-* less
-* xfer
+* dir - this is an alias to `ls` and should be handled by the shell
+* xfer - accept incoming data transfer from xfer.py and write to disk
 
 ## Command Documentation
 

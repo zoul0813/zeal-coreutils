@@ -34,6 +34,10 @@ add_program(ls
     ILIBS common
 )
 
+add_program(less
+    less.asm
+)
+
 add_program(mkdir
     mkdir.c
     ILIBS common
@@ -67,4 +71,8 @@ add_program(touch
 add_program(tree
     tree.c
     ILIBS common
+)
+
+add_program(xfer
+    xfer.asm
 )
