@@ -16,8 +16,8 @@ PAGE3_SIZE = 16384
 COMMAND_QUIT = 'q'        ; KB_KEY_Q
 COMMAND_SCROLL_UP = 0xa0   ; KB_UP_ARROW (adjust as needed)
 COMMAND_SCROLL_DOWN = 0xa1 ; KB_DOWN_ARROW (adjust as needed)
-DEV_STDIN = 1
 DEV_STDOUT = 0
+DEV_STDIN = 1
 O_RDONLY = 0
 CMD_CLEAR_SCREEN = 6
 CMD_SET_CURSOR_XY = 4
@@ -105,7 +105,7 @@ _main::
     ; Check that argc is 1
     ld a, l
     cp #1
-    jp NZ, _less_usage
+    jp nz, _less_usage
     ; Retrieve the filename given as a parameter
     inc de
     inc de ; skip the first pointer?

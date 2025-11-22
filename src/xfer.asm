@@ -29,13 +29,20 @@ XFER_SER_FD   = METADATA_SIZE + 1
 XFER_FILE_FD  = METADATA_SIZE + 2
 
 ; System call constants
-O_RDWR = 2
-O_WRONLY = 1
-O_CREAT = 0x10
-O_TRUNC = 0x20
-ERR_NOT_IMPLEMENTED = 0xFF
-ERR_ENTRY_CORRUPTED = 0xFE
+O_WRONLY_BIT = 0
+O_RDONLY = 0 << O_WRONLY_BIT
+O_WRONLY = 1 << O_WRONLY_BIT
+O_RDWR   = 2
+O_TRUNC  = 1 << 2
+O_APPEND = 2 << 2
+O_CREAT  = 4 << 2
+
+
+ERR_NOT_IMPLEMENTED = #2
+ERR_ENTRY_CORRUPTED = #25
+
 DEV_STDOUT = 0
+DEV_STDIN = 1
 
 
 .macro SYSCALL
@@ -77,6 +84,116 @@ DEV_STDOUT = 0
 ; code
 ;--------------------------------------------------------
     .area _TEXT
+
+_kernel_config:
+	ld	de, (#0x0004)
+	ret
+
+; "xfer" command main function
+; It currently accepts two parameters: `r` for receive and the
+; text to send on the UART.
+; This command follows the protocol described in the script `tools/uartsnd.py` part
+; of Zeal 8-bit OS project. It will use the serial driver registered as "SER0".
+; A name can be provided as a parameter to override the received file name.
+; Parameters:
+;       HL - ARGC
+;       DE - ARGV
+; Returns:
+;       A - 0 on success
+_main::
+    ; In all cases, we must not have more than 2 parameters
+    ld a, l
+    cp #1
+    jr nz, xfer_usage
+
+    inc de
+    inc de ; skip the pointer "r foo"
+
+    push de ; DE is ARGV
+    inc de
+    inc de ; DE is the third "foo"
+
+    pop hl  ; HL is now ARGV "r"
+
+    ; ; The filename we will receive will be in STATIC_BUFFER buffer
+    ; ld de, #STATIC_BUFFER + 1
+    ; ; Make the assumption that B is 0
+    ; dec c  ; Do not count the command itself
+    ; jr z, xfer_usage
+
+    ex de, hl ; DE = "foo", HL = "r"
+    ld bc, #1
+    call print_debc
+
+    ex de, hl
+    ld bc, #1
+    call print_debc
+
+    ; Make sure the next parameter is `r` for receive
+    ; inc hl
+    ; inc hl
+    call xfer_get_op
+    ; A must be 'r' or 's'
+    cp #'r'
+    jp z, xfer_rcv
+    cp #'s'
+    jp z, xfer_snd
+    ; Fall-through
+
+xfer_usage:
+    ; S_WRITE3(DEV_STDOUT, _xfer_usage_str, _xfer_usage_str_end - _xfer_usage_str)
+    ld h, #DEV_STDOUT
+    ld de, #_xfer_usage_str
+    ld bc, #XFER_USAGE_STR_LEN
+    WRITE
+
+    ld a, #0xFF
+    EXIT
+
+_debug_str:
+    .ascii "DEBUG: "
+_debug_str_end:
+STR_DEBUG_LEN = _debug_str_end - _debug_str
+
+_debug_newline:
+    .ascii "\n"
+_debug_newline_end:
+STR_DEBUG_NEWLINE_LEN = _debug_newline_end - _debug_newline
+
+print_debc:
+    push hl
+    push de ; backup buffer
+    push bc ; backup length
+
+    ; print "DEBUG: "
+    ld h, #DEV_STDOUT
+    ld de, #_debug_str
+    ld bc, #STR_DEBUG_LEN
+    WRITE
+
+    pop bc ; restore length
+    pop de ; restore buffer
+    push de ; backup buffer
+    ld h, #DEV_STDOUT
+    WRITE ; print buffer
+
+    ; print newline
+    ld de, #_debug_newline
+    ld bc, #STR_DEBUG_NEWLINE_LEN
+    WRITE
+
+    pop de
+    pop hl
+    ret
+;
+
+_xfer_usage_str:
+    .ascii "usage: xfer s|r [<output_file>]\n"
+    .ascii "s\n    Send a file.\n"
+    .asciz "r\n    Receive a file.\n"
+_xfer_usage_str_end:
+XFER_USAGE_STR_LEN = _xfer_usage_str_end - _xfer_usage_str
+;
 
     ; Open the UART driver
 uart_open:
@@ -129,6 +246,7 @@ xfer_rcv_receive_and_save_ack:
     WRITE
     ; No need to check the return value
     ret
+;
 
     ; Check if the given string is "r" or "s"
     ; Parameters:
@@ -138,78 +256,36 @@ xfer_rcv_receive_and_save_ack:
     ; Alters:
     ;   A, B, HL
 xfer_get_op:
-    push hl
-    ld a, (hl)
-    inc hl
-    ld h, (hl)
-    ld l, a
-    ; The string address is now in HL
-    ld a, (hl)
-    inc hl
-    ld b, #'r
+    push hl ; HL = "r"
+    ld a, (hl) ; A = "r"
+    inc hl ; HL = " "
+
+    ld b, #'r'
     cp b
     jr z, xfer_check_r_s_check_end
-    ld b, #'s
+    ld b, #'s'
     cp b
     jr z, xfer_check_r_s_check_end
     ; Not 'r' nor 's', fail
     pop hl
     ld a, #0xff
     ret
+;
+
 xfer_check_r_s_check_end:
     ; Make sure the next character is NULL
     ld a, (hl)
     pop hl
-    or a
+    cp #' '
+    jr nz, _not_space
     ld a, b
-    ret z
+    ret
+_not_space:
     ; Next character is not 0...
     ld a, #0xFF
     ret
+;
 
-
-    ; xfer main routine. It currently accepts two parameters: `r` for receive and the
-    ; text to send on the UART.
-    ; This command follows the protocol described in the script `tools/uartsnd.py` part
-    ; of Zeal 8-bit OS project. It will use the serial driver registered as "SER0".
-    ; A name can be provided as a parameter to override the received file name.
-    ; Parameters:
-    ;       HL - ARGV
-    ;       BC - ARGC
-    ; Returns:
-    ;       A - 0 on success
-_main::
-    ; In all cases, we must not have more than 3 parameters
-    ld a, c
-    cp #4
-    jr nc, xfer_usage
-    ; The filename we will receive will be in STATIC_BUFFER buffer
-    ld de, #STATIC_BUFFER + 1
-    ; Make the assumption that B is 0
-    dec c  ; Do not count the command itself
-    jr z, xfer_usage
-    ; Make sure the next parameter is `r` for receive
-    inc hl
-    inc hl
-    call xfer_get_op
-    ; A must be 'r' or 's'
-    cp #'r
-    jp z, xfer_rcv
-    cp #'s
-    jr z, xfer_snd
-    ; Fall-through
-xfer_usage:
-    ; S_WRITE3(DEV_STDOUT, _xfer_usage_str, _xfer_usage_str_end - _xfer_usage_str)
-    ld h, #DEV_STDOUT
-    ld de, #_xfer_usage_str
-    ld bc, #(_xfer_usage_str_end - _xfer_usage_str)
-    WRITE
-    ret
-_xfer_usage_str:
-    .ascii "usage: xfer s|r [<output_file>]\n"
-    .ascii "s\n    Send a file.\n"
-    .ascii "r\n    Receive a file.\n"
-_xfer_usage_str_end:
 
 xfer_snd:
     ld de, #0
@@ -217,15 +293,19 @@ xfer_snd:
     jp error_print
 
 xfer_rcv:
+    ex de, hl ; HL = "foo"
+    ld a, (hl)
+    or a
     ; Check if we still have parameters
-    dec c
+    ; dec c
     jr z, xfer_rcv_no_override
     ; The filename has to be overriden, take the given filename
-    inc hl
-    inc hl
-    ld e, (hl)
-    inc hl
-    ld d, (hl)
+    ; inc hl
+    ; inc hl
+    ; ld e, (hl)
+    ; inc hl
+    ; ld d, (hl)
+    ex de, hl
 xfer_rcv_no_override:
     ; Store the filename on the stack
     push de
