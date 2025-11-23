@@ -1,7 +1,7 @@
 bin/
 build/
 debug/
-lib/
+lib/common*
 
 *.zip
 release/

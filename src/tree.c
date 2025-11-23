@@ -10,9 +10,6 @@
 
 char cwd[PATH_MAX+1];
 
-zos_dir_entry_t dir_entry;
-zos_dir_entry_t next_dir_entry;
-
 uint32_t filesize32;
 uint16_t filesize16;
 char filesize[8];
@@ -34,6 +31,8 @@ void handle_error(zos_err_t code) {
 zos_err_t tree(char* path, int depth) {
     zos_dev_t d;
     zos_err_t err;
+    zos_dir_entry_t dir_entry;
+    zos_dir_entry_t next_dir_entry;
     uint16_t l = str_len(path);
     char* last = &path[l - 1];
     if(*last != PATH_SEP) {
