@@ -1,5 +1,5 @@
 #include <zos_vfs.h>
-#include "common.h"
+#include "core.h"
 
 void put_date_part(uint16_t part, char *buffer) {
     u8tohex(part, buffer, 'A');

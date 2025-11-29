@@ -14,7 +14,7 @@
 #include <zos_vfs.h>
 #include <zvb_crc.h>
 
-#include "common.h"
+#include <core.h>
 
 static char* split_string(char* current, char** next)
 {

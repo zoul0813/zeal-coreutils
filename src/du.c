@@ -1,7 +1,7 @@
 #include <zos_errors.h>
 #include <inttypes.h>
 
-#include "common.h"
+#include <core.h>
 
 #define CH_TREE_BRANCH 195
 #define CH_TREE_LEAF   196

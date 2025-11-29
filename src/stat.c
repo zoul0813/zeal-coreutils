@@ -1,6 +1,6 @@
 #include <zos_errors.h>
 #include <zos_vfs.h>
-#include "common.h"
+#include <core.h>
 
 #define BUFFER_SIZE 1024
 

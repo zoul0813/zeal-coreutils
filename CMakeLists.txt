@@ -18,11 +18,10 @@ project(zeal_modem C ASM)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
-add_subdirectory(common)
-# add_subdirectory(libsrc/libmodem)
-# add_subdirectory(libsrc/libansi)
-# add_subdirectory(libsrc/libhttp)
-# add_subdirectory(libsrc/libkeyboard)
+add_subdirectory(libsrc/libcore)
+add_subdirectory(libsrc/libconio)
+add_subdirectory(libsrc/libkeyboard)
+add_subdirectory(libsrc/libwindows)
 
 function(add_program target_name)
     cmake_parse_arguments(ARG "" "" "SRCS;LIBS;ILIBS" ${ARGN})
@@ -40,7 +39,8 @@ function(add_program target_name)
 
     if(ARG_ILIBS)
         foreach(lib IN LISTS ARG_ILIBS)
-            target_link_libraries(${target_name} PUBLIC "-k ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -l ${lib}.lib")
+            # target_link_libraries(${target_name} PUBLIC "-k ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -l ${lib}.lib")
+            zos_link_libraries(${target_name} PRIVATE ${lib})
         endforeach()
     endif()
 

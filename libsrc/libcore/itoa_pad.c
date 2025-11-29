@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "common.h"
+#include "core.h"
 
 void itoa_pad(uint16_t num, char* str, uint16_t base, char alpha, char pad, uint8_t size) {
     itoa(num, str, base, alpha);

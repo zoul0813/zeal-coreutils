@@ -1,7 +1,7 @@
 #include <zos_errors.h>
 #include <zos_vfs.h>
 #include <zvb_hardware.h>
-#include "common.h"
+#include <core.h>
 
 #define BUFFER_SIZE 3072
 

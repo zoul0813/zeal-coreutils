@@ -2,7 +2,7 @@
 #include <zos_errors.h>
 #include <zos_sys.h>
 #include <zos_vfs.h>
-#include "common.h"
+#include "core.h"
 
 uint16_t put_u8(uint8_t i) {
     char c[3];

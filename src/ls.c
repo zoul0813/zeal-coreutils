@@ -2,7 +2,7 @@
 #include <zos_sys.h>
 #include <zos_vfs.h>
 
-#include "common.h"
+#include <core.h>
 
 typedef enum {
     List_Details = 1 << 0,

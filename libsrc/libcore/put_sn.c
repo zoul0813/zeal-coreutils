@@ -2,7 +2,7 @@
 #include <zos_errors.h>
 #include <zos_sys.h>
 
-#include "common.h"
+#include "core.h"
 
 uint16_t put_sn(const char* str, uint16_t size) {
     uint16_t l = str_len(str);

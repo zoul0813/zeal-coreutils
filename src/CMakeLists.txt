@@ -1,37 +1,37 @@
 add_program(cat
     cat.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(cp
     cp.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(crc32
     crc32.c
     LIBS zvb_crc
-    ILIBS common
+    ILIBS core
 )
 
 add_program(du
     du.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(echo
     echo.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(hexdump
     hexdump.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(ls
     ls.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(less
@@ -40,37 +40,37 @@ add_program(less
 
 add_program(mkdir
     mkdir.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(mv
     mv.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(rm
     rm.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(setfont
     setfont.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(stat
     stat.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(touch
     touch.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(tree
     tree.c
-    ILIBS common
+    ILIBS core
 )
 
 add_program(xfer

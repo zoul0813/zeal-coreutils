@@ -1,4 +1,4 @@
-add_library(common STATIC
+add_library(core STATIC
     itoa.c
     itoa_pad.c
     u8tohex.c
@@ -7,6 +7,7 @@ add_library(common STATIC
 
     max.c
     min.c
+    clamp.c
 
     mem_cpy.c
     mem_set.c
@@ -15,6 +16,8 @@ add_library(common STATIC
     put_s.c
     put_sn.c
     put_u8.c
+    put_u16.c
+    put_hex.c
 
     str_cat.c
     str_cmp.c
@@ -23,4 +26,6 @@ add_library(common STATIC
     str_len.c
     str_pos.c
 )
-target_compile_options(common PRIVATE --nostdlib)
+
+target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(core PRIVATE --nostdlib)
