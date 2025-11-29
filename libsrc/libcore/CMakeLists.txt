@@ -14,12 +14,13 @@ add_library(core STATIC
 
     put_c.c
     put_s.c
-    put_sn.c
     put_u8.c
     put_u16.c
     put_hex.c
 
     str_cat.c
+    str_chr.c
+    str_chrr.c
     str_cmp.c
     str_cpy.c
     str_ends_with.c

@@ -15,10 +15,11 @@
 #define SCREEN_COL40_HEIGHT 20
 
 #define CH_NULL         '\0'
-#define CH_NEWLINE      '\n' // \n
-#define CH_SPACE        ' ' // Space
-#define CH_TAB          '\t' // \t
-#define CH_PERIOD       '.' // .
+#define CH_NEWLINE      '\n'
+#define CH_RETURN       '\r'
+#define CH_SPACE        ' '
+#define CH_TAB          '\t'
+#define CH_PERIOD       '.'
 
 #define PATH_SEP        '/'
 #define DRIVE_SEP       ':'
@@ -32,9 +33,14 @@ uint16_t put_u16(uint16_t i);
 uint16_t put_hex(uint16_t i);
 uint16_t str_len(const char* str);
 int16_t str_ends_with(const char *str, const char *suffix);
+int16_t str_cmpn(const void* src1, const void* src2, uint16_t n);
 int16_t str_cmp(void* src1, const void* src2);
+char* str_chr(const char* str, char c);
+char* str_chrr(const char* str, char c);
 int16_t str_pos(const char* str, char c);
+void* str_cpyn(void* dst, const void* src, uint16_t n);
 void* str_cpy(void* dst, const void* src);
+void* str_catn(void* dst, const void* src, uint16_t n);
 void* str_cat(void* dst, const void* src);
 uint16_t max(uint16_t a, uint16_t b);
 uint16_t min(uint16_t a, uint16_t b);
