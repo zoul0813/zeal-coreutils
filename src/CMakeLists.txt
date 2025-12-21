@@ -48,6 +48,11 @@ add_program(mv
     ILIBS core
 )
 
+add_program(return
+    return.c
+    ILIBS core
+)
+
 add_program(rm
     rm.c
     ILIBS core
