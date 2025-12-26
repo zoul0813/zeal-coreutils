@@ -11,6 +11,7 @@ add_library(core STATIC
 
     mem_cpy.c
     mem_set.c
+    mem_cmp.c
 
     put_c.c
     put_s.c
