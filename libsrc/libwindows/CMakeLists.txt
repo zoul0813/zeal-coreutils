@@ -19,4 +19,6 @@ add_library(windows STATIC
 target_include_directories(windows PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(windows PRIVATE $ENV{ZVB_SDK_PATH}/include)
 target_link_libraries(windows PRIVATE core)
-target_compile_options(windows PRIVATE --nostdlib)
+target_compile_options(windows PRIVATE
+    $<$<COMPILE_LANGUAGE:C>:--nostdlib>
+)

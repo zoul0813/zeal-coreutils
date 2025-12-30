@@ -14,7 +14,7 @@ zos_use(zvb)
 find_package(ZVB_SDK REQUIRED)
 
 # When using CMake as a build system, it's possible to mix ASM and C in the compilation
-project(zeal_modem C ASM)
+project(coreutils C ASM)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 
