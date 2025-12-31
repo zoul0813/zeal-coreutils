@@ -50,13 +50,13 @@ _str_cpyn_bc_ready:
   or c
   ret z
   push de
-loop:
+.loop:
   ld a, (hl)
   ldi
-  jp po, done
+  jp po, .done
   or a
-  jr nz, loop
-done:
+  jr nz, .loop
+.done:
   pop de
   ret
 

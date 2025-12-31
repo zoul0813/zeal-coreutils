@@ -10,7 +10,7 @@ add_library(core STATIC
     clamp.asm
 
     mem_cpy.asm
-    mem_set.c
+    mem_set.asm
     mem_cmp.c
 
     put_c.c
