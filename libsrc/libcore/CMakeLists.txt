@@ -6,8 +6,8 @@ add_library(core STATIC
     date.c
 
     max.asm
-    min.c
-    clamp.c
+    min.asm
+    clamp.asm
 
     mem_cpy.asm
     mem_set.c
@@ -25,7 +25,7 @@ add_library(core STATIC
     str_cmp.c
     str_cpy.asm
     str_ends_with.c
-    str_len.c
+    str_len.asm
     str_pos.c
 )
 

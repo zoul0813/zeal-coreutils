@@ -1,38 +1,39 @@
-	.module max
+	.module min
 	.optsdcc -mz80
-    .globl _max
+    .globl _min
 	.area _TEXT
 ;------------------------------------------------------------------------------
-; _max - Return the maximum of two 16-bit unsigned integers
+; _min - Return the minimum of two 16-bit unsigned integers
 ;
 ; C prototype:
-;   uint16_t max(uint16_t a, uint16_t b);
+;   uint16_t min(uint16_t a, uint16_t b);
 ;
 ; Parameters (SDCC calling convention, Z80):
 ;   - HL: first  argument (a)
 ;   - DE: second argument (b)
 ;
 ; Returns:
-;   - DE: the greater of a and b
+;   - DE: the smaller of a and b
 ;
 ; Description:
-;   Compares the 16-bit values in HL and DE. If HL > DE, returns HL.
+;   Compares the 16-bit values in HL and DE. If HL < DE, returns HL.
 ;   Otherwise, returns DE. The result is left in DE.
 ;
 ; Registers affected:
 ;   - AF, HL, DE
 ;
 ;------------------------------------------------------------------------------
-_max::
-    ld	a, e
-    sub	a, l
-    ld	a, d
-    sbc	a, h
-    ret	NC
+_min::
+	ld	a, l
+	sub	a, e
+	ld	a, h
+	sbc	a, d
+	ret	nc
     ex de, hl
-    ret
+	ret
 
-; uint16_t max(uint16_t a, uint16_t b) {
-;     if(a > b) return a;
+
+; uint16_t min(uint16_t a, uint16_t b) {
+;     if(a < b) return a;
 ;     return b;
 ; }
