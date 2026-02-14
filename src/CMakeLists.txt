@@ -3,6 +3,11 @@ add_program(cat
     ILIBS core
 )
 
+add_program(acat
+    acat.c
+    ILIBS core ansi
+)
+
 add_program(cp
     cp.c
     ILIBS core

@@ -22,6 +22,7 @@ add_subdirectory(libsrc/libcore)
 add_subdirectory(libsrc/libconio)
 add_subdirectory(libsrc/libkeyboard)
 add_subdirectory(libsrc/libwindows)
+add_subdirectory(libsrc/libansi)
 
 function(add_program target_name)
     cmake_parse_arguments(ARG "" "" "SRCS;LIBS;ILIBS" ${ARGN})
