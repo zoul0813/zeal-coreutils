@@ -7,7 +7,6 @@
 zos_err_t err;
 zos_dev_t dev;
 uint16_t size;
-uint16_t addr;
 char buffer[BUFFER_SIZE];
 
 

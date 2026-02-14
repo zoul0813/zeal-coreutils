@@ -1,12 +1,11 @@
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <zos_errors.h>
 #include <zos_vfs.h>
 #include <zos_sys.h>
 #include <zos_video.h>
 #include <zvb_hardware.h>
 
+#include <core.h>
 #include "ansi.h"
 
 
@@ -65,11 +64,13 @@ void hw_set_fg(uint8_t color)
     }
     SET_COLORS(ansi_fg, ansi_bg);
 }
+
 void hw_set_bg(uint8_t color)
 {
     ansi_bg = colors[color];
     SET_COLORS(ansi_fg, ansi_bg);
 }
+
 void hw_cursor_move(uint8_t row, uint8_t col)
 {
     row--;
@@ -82,6 +83,7 @@ void hw_cursor_move(uint8_t row, uint8_t col)
     zvb_peri_text_curs_x = col;
     zvb_peri_text_curs_y = row;
 }
+
 void hw_cursor_down(uint8_t n)
 {
     int16_t y  = zvb_peri_text_curs_y;
@@ -92,6 +94,7 @@ void hw_cursor_down(uint8_t n)
         zvb_peri_text_curs_y = y;
     }
 }
+
 void hw_cursor_forward(uint8_t n)
 {
     int16_t x;
@@ -103,6 +106,7 @@ void hw_cursor_forward(uint8_t n)
         zvb_peri_text_curs_x = x;
     }
 }
+
 void hw_cursor_up(uint8_t n)
 {
     int16_t y;
@@ -114,6 +118,7 @@ void hw_cursor_up(uint8_t n)
         zvb_peri_text_curs_y = y;
     }
 }
+
 void hw_cursor_back(uint8_t n)
 {
     zvb_peri_text_curs_x += n;
@@ -126,6 +131,7 @@ void hw_cursor_back(uint8_t n)
         zvb_peri_text_curs_x = x;
     }
 }
+
 void hw_clear_screen(uint8_t mode)
 {
     uint8_t cx = zvb_peri_text_curs_x;
@@ -159,6 +165,7 @@ void hw_clear_screen(uint8_t mode)
         // } break;
     }
 }
+
 void hw_clear_line(uint8_t mode)
 {
     uint8_t f  = 0;
@@ -278,7 +285,7 @@ uint8_t ansi_parse(unsigned char c, char response[ANSI_BUF_MAX])
                     } break;
                     case 'c': { // device attributes
                         // Device Attributes: respond as VT100 / ANSI
-                        sprintf(response, "\x1B[?1;2c]");
+                        str_cpy(response, "\x1B[?1;2c]");
                         return ANSI_SEND;
                         break;
                     } break;
@@ -286,13 +293,21 @@ uint8_t ansi_parse(unsigned char c, char response[ANSI_BUF_MAX])
                         uint8_t param = ansi_param(0);
                         switch (param) {
                             case 5: { // Are you OK?
-                                sprintf(response, "\x1B[0n");
+                                str_cpy(response, "\x1B[0n");
                                 return ANSI_SEND;
                             } break;
                             case 6: { // Cursor Position
                                 uint8_t x = zvb_peri_text_curs_x + 1;
                                 uint8_t y = zvb_peri_text_curs_y + 1;
-                                sprintf(response, "\x1B[%d;%dR", y, x);
+                                char y_str[6];
+                                char x_str[6];
+                                itoa(y, y_str, 10, 'A');
+                                itoa(x, x_str, 10, 'A');
+                                str_cpy(response, "\x1B[");
+                                str_cat(response, y_str);
+                                str_cat(response, ";");
+                                str_cat(response, x_str);
+                                str_cat(response, "R");
                                 return ANSI_SEND;
                             }
                         }
@@ -386,32 +401,33 @@ uint8_t ansi_deinit(void)
     return 0;
 }
 
-uint8_t ansi_print(char *buffer) {
-    uint8_t n = strlen(buffer);
+uint8_t ansi_print(char* buffer)
+{
+    uint8_t n = str_len(buffer);
     for (uint8_t i = 0; i < n; i++) {
         char value = buffer[i];
-        switch(value) {
-                case ANSI_LF: { // new line
-                    zvb_peri_text_ctrl |= (1 << ZVB_PERI_TEXT_CTRL_NEXTLINE);
-                } break;
-                case ANSI_CR: {
-                    zvb_peri_text_curs_x = 0;
-                } break;
-                case ANSI_BS: { // backspace
-                    uint8_t x                = zvb_peri_text_curs_x - 1;
-                    zvb_peri_text_curs_x     = x;
-                    zvb_peri_text_print_char = '\0';
-                    zvb_peri_text_curs_x     = x;
-                } break;
-                case ANSI_FF: { // form feed (clear screen)
-                    zos_err_t err = ioctl(DEV_STDOUT, CMD_CLEAR_SCREEN, NULL);
-                    if(err) return err;
-                } break;
-                default: {
-                    zvb_peri_text_print_char = buffer[i];
-
-                }
+        switch (value) {
+            case ANSI_LF: { // new line
+                zvb_peri_text_ctrl |= (1 << ZVB_PERI_TEXT_CTRL_NEXTLINE);
+            } break;
+            case ANSI_CR: {
+                zvb_peri_text_curs_x = 0;
+            } break;
+            case ANSI_BS: { // backspace
+                uint8_t x                = zvb_peri_text_curs_x - 1;
+                zvb_peri_text_curs_x     = x;
+                zvb_peri_text_print_char = '\0';
+                zvb_peri_text_curs_x     = x;
+            } break;
+            case ANSI_FF: { // form feed (clear screen)
+                zos_err_t err = ioctl(DEV_STDOUT, CMD_CLEAR_SCREEN, NULL);
+                if (err)
+                    return err;
+            } break;
+            default: {
+                zvb_peri_text_print_char = buffer[i];
             }
+        }
     }
-     return 0;
+    return 0;
 }
