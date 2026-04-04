@@ -29,6 +29,7 @@ uint16_t put_sn(const char* str, uint16_t size);
 uint16_t put_s(const char* str);
 uint16_t put_c(const char c);
 uint16_t put_u8(uint8_t i);
+uint16_t put_hex8(uint8_t i);
 uint16_t put_u16(uint16_t i);
 uint16_t put_hex(uint16_t i);
 uint16_t str_len(const char* str);

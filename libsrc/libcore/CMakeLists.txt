@@ -18,6 +18,7 @@ add_library(core STATIC
     put_u8.c
     put_u16.c
     put_hex.c
+    put_hex8.c
 
     str_cat.c
     str_chr.c
