@@ -9,6 +9,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
 set(ZOS_TOOLCHAIN sdcc)
 include($ENV{ZOS_PATH}/cmake/zos_init.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake/coreutils_init.cmake)
 
 zos_use(zvb)
 find_package(ZVB_SDK REQUIRED)
@@ -47,23 +48,7 @@ function(add_program target_name)
 
     zos_add_outputs(${target_name})
 
-    add_custom_command(TARGET ${target_name}_bin POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/debug
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name}.cdb
-            ${CMAKE_SOURCE_DIR}/debug/${target_name}.cdb
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name}.map
-            ${CMAKE_SOURCE_DIR}/debug/${target_name}.map
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name}.ihx
-            ${CMAKE_SOURCE_DIR}/debug/${target_name}.ihx
-        COMMAND ${CMAKE_COMMAND} -E rename
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name}.bin
-            ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${target_name}
-        COMMENT "Moving debug files to debug directory"
-        VERBATIM
-    )
+    coreutils_add_post_build_artifacts(${target_name})
 endfunction()
 
 add_subdirectory(src)
