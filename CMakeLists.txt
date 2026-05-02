@@ -25,6 +25,16 @@ add_subdirectory(libsrc/libkeyboard)
 add_subdirectory(libsrc/libwindows)
 add_subdirectory(libsrc/libansi)
 
+function(link_prebuilt_lib target_name lib)
+    target_link_options(${target_name} PRIVATE
+        "SHELL:-k ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
+        "SHELL:-l ${lib}.lib"
+    )
+    target_include_directories(${target_name} PRIVATE
+        "${CMAKE_SOURCE_DIR}/libsrc/lib${lib}"
+    )
+endfunction()
+
 function(add_program target_name)
     cmake_parse_arguments(ARG "" "" "SRCS;LIBS;ILIBS" ${ARGN})
 
@@ -41,14 +51,17 @@ function(add_program target_name)
 
     if(ARG_ILIBS)
         foreach(lib IN LISTS ARG_ILIBS)
-            # target_link_libraries(${target_name} PUBLIC "-k ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} -l ${lib}.lib")
-            zos_link_libraries(${target_name} PRIVATE ${lib})
+            link_prebuilt_lib(${target_name} ${lib})
         endforeach()
     endif()
 
     zos_add_outputs(${target_name})
 
     coreutils_add_post_build_artifacts(${target_name})
+    set_property(GLOBAL APPEND PROPERTY COREUTILS_BIN_TARGETS "${target_name}_bin")
 endfunction()
 
 add_subdirectory(src)
+
+get_property(coreutils_bin_targets GLOBAL PROPERTY COREUTILS_BIN_TARGETS)
+add_custom_target(bins DEPENDS ${coreutils_bin_targets})
