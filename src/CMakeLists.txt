@@ -15,7 +15,7 @@ add_program(cp
 
 add_program(crc32
     crc32.c
-    LIBS zvb_crc
+    LIBS zvb
     ILIBS core
 )
 
