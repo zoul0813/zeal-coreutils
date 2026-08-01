@@ -1,8 +1,8 @@
 add_library(windows STATIC
-    vram.c
+    vram.asm
     window.c
     window_active.c
-    window_columns.c
+    window_columns.asm
     window_gotox.c
     window_gotoy.c
     window_gotoxy.c
@@ -11,8 +11,8 @@ add_library(windows STATIC
     window_save.c
     window_wherex.c
     window_wherey.c
-    window_putc.c
-    window_puts.c
+    window_putc.asm
+    window_puts.asm
     banners.c
 )
 
