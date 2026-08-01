@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <core.h>
 #include "windows.h"
 
 void _text_banner(uint8_t x, uint8_t y, uint8_t c, uint8_t centered, window_t* w, const char* s)
@@ -37,10 +38,10 @@ void _text_banner(uint8_t x, uint8_t y, uint8_t c, uint8_t centered, window_t* w
 
     if (len > 0) {
         text_map_vram();
-        for (uint8_t i = 0; i < pad; i++) {
-            TEXT_WRITE(win_NonePtr, x, y, CH_SPACE);
-            COLOR_WRITE(win_NonePtr, x, y, c);
-            x++;
+        if (pad > 0) {
+            mem_set(&SCR_TEXT[y][x], CH_SPACE, pad);
+            mem_set(&SCR_COLOR[y][x], c, pad);
+            x += pad;
         }
 
         uint8_t clr = c;
@@ -62,10 +63,10 @@ void _text_banner(uint8_t x, uint8_t y, uint8_t c, uint8_t centered, window_t* w
             chars_written++;
         }
 
-        for (uint8_t i = 0; i < (width - len - pad); i++) {
-            TEXT_WRITE(win_NonePtr, x, y, CH_SPACE);
-            COLOR_WRITE(win_NonePtr, x, y, c);
-            x++;
+        uint8_t trailing_pad = width - len - pad;
+        if (trailing_pad > 0) {
+            mem_set(&SCR_TEXT[y][x], CH_SPACE, trailing_pad);
+            mem_set(&SCR_COLOR[y][x], c, trailing_pad);
         }
         text_demap_vram();
     }

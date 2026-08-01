@@ -12,10 +12,8 @@ void window_active(window_t* w, uint8_t active) {
     text_map_vram();
 
     if(w->flags & WIN_BORDER) {
-        for(x = min_x; x <= max_x; x++) {
-            COLOR_WRITE(w, x, min_y, color);
-            COLOR_WRITE(w, x, max_y, color);
-        }
+        mem_set(&SCR_COLOR[min_y][min_x], color, w->w);
+        mem_set(&SCR_COLOR[max_y][min_x], color, w->w);
         for(y = min_y + 1; y < max_y; y++) {
             COLOR_WRITE(w, min_x, y, color);
             COLOR_WRITE(w, max_x, y, color);
@@ -28,10 +26,7 @@ void window_active(window_t* w, uint8_t active) {
         } else if(!(w->flags & WIN_TITLE_LEFT)) {
             x = x + ((w->w - len) >> 1);
         }
-        for(uint8_t i = 0; i < len; i++) {
-            x++;
-            COLOR_WRITE(w, x, min_y, color);
-        }
+        mem_set(&SCR_COLOR[min_y][x + 1], color, len);
     }
 
     text_demap_vram();

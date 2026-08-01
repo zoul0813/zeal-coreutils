@@ -49,11 +49,8 @@ void window(window_t* w)
     uint8_t max_y = (y + w->h - 1);
 
     for (y = min_y; y <= max_y; y++) {
-        for (x = min_x; x <= max_x; x++) {
-            char c = CH_SPACE;
-            TEXT_WRITE(w, x, y, c);
-            COLOR_WRITE(w, x, y, color);
-        }
+        mem_set(&SCR_TEXT[y][min_x], CH_SPACE, w->w);
+        mem_set(&SCR_COLOR[y][min_x], color, w->w);
     }
 
     // OPTIMIZE: move this into a separate block with loops like before...?
@@ -66,10 +63,9 @@ void window(window_t* w)
         TEXT_WRITE(w, x, max_y, CH_LLCORNER);
         TEXT_WRITE(w, max_x, max_y, CH_LRCORNER);
 
-        for (x++; x <= max_x - 1; x++) {
-            TEXT_WRITE(w, x, y, CH_HLINE);
-            TEXT_WRITE(w, x, max_y, CH_HLINE);
-        }
+        uint8_t border_width = w->w - 2;
+        mem_set(&SCR_TEXT[y][min_x + 1], CH_HLINE, border_width);
+        mem_set(&SCR_TEXT[max_y][min_x + 1], CH_HLINE, border_width);
 
         x = w->x;
         for (y++; y <= max_y - 1; y++) {
@@ -90,10 +86,8 @@ void window(window_t* w)
             COLOR_WRITE(w, x, y, COLOR(w->fg, TEXT_COLOR_BLACK));
         }
 
-        for (x = min_x; x <= max_x; x++) {
-            TEXT_WRITE(w, x, y, CH_SPACE);
-            COLOR_WRITE(w, x, y, COLOR(w->fg, TEXT_COLOR_BLACK));
-        }
+        mem_set(&SCR_TEXT[y][min_x], CH_SPACE, max_x - min_x + 1);
+        mem_set(&SCR_COLOR[y][min_x], COLOR(w->fg, TEXT_COLOR_BLACK), max_x - min_x + 1);
     }
     text_demap_vram();
 
