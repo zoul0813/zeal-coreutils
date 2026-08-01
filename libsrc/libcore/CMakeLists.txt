@@ -20,12 +20,12 @@ add_library(core STATIC
     put_hex.c
     put_hex8.c
 
-    str_cat.c
+    str_cat.asm
     str_chr.asm
     str_chrr.asm
-    str_cmp.c
+    str_cmp.asm
     str_cpy.asm
-    str_ends_with.c
+    str_ends_with.asm
     str_len.asm
     str_pos.asm
 )
