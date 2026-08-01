@@ -1,6 +1,6 @@
 add_library(core STATIC
-    itoa.c
-    itoa_pad.c
+    itoa.asm
+    itoa_pad.asm
     u8tohex.c
 
     date.c
