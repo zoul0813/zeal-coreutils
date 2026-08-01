@@ -21,13 +21,13 @@ add_library(core STATIC
     put_hex8.c
 
     str_cat.c
-    str_chr.c
-    str_chrr.c
+    str_chr.asm
+    str_chrr.asm
     str_cmp.c
     str_cpy.asm
     str_ends_with.c
     str_len.asm
-    str_pos.c
+    str_pos.asm
 )
 
 target_include_directories(core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
