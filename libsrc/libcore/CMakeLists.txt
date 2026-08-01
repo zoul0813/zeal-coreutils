@@ -11,7 +11,7 @@ add_library(core STATIC
 
     mem_cpy.asm
     mem_set.asm
-    mem_cmp.c
+    mem_cmp.asm
 
     put_c.c
     put_s.c
