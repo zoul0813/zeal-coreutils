@@ -1,12 +1,11 @@
 #include "windows.h"
 
-uint8_t window_putc_color(window_t* w, char c, uint8_t color) {
+uint8_t _window_putc_color_mapped(window_t* w, char c, uint8_t color) {
     uint8_t x     = w->_attrs.pos_x;
     uint8_t min_x = x;
     uint8_t y     = w->_attrs.pos_y;
     uint8_t lines = 0;
-    uint8_t tab_width = ((w->_attrs.pos_x - w->_attrs.offset) - w->x) % 4;
-    text_map_vram();
+    uint8_t tab_width = ((w->_attrs.pos_x - w->_attrs.offset) - w->x) & 3;
     switch (c) {
         case CH_NEWLINE:
             w->_attrs.pos_y = ++y;
@@ -27,12 +26,18 @@ uint8_t window_putc_color(window_t* w, char c, uint8_t color) {
             COLOR_WRITE(w, x, y, color);
             w->_attrs.pos_x++;
     }
-    text_demap_vram();
     if (w->_attrs.pos_x > ((w->x + w->w - 1) - w->_attrs.offset)) {
         w->_attrs.pos_x = w->x + w->_attrs.offset;
         w->_attrs.pos_y++;
         lines++;
     }
+    return lines;
+}
+
+uint8_t window_putc_color(window_t* w, char c, uint8_t color) {
+    text_map_vram();
+    uint8_t lines = _window_putc_color_mapped(w, c, color);
+    text_demap_vram();
     return lines;
 }
 

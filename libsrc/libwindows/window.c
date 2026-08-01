@@ -11,7 +11,8 @@ void window_title(window_t* w, const char* title)
 {
     if (title != NULL) {
         /* Draw the window heading */
-        uint8_t len = str_len(title) + 4;
+        uint16_t title_len = str_len(title);
+        uint8_t len = title_len + 4;
 
         uint8_t x = w->x + ((w->w - len) >> 1);
         uint8_t y = w->y;
@@ -19,12 +20,9 @@ void window_title(window_t* w, const char* title)
         SCR_TEXT[y][x]   = '[';
         SCR_TEXT[y][++x] = ' ';
 
-        for (int i = 0; i < SCREEN_COL80_WIDTH; i++) {
-            unsigned char c = title[i];
-            if (c == 0x00)
-                break;
-            SCR_TEXT[y][++x] = c;
-        }
+        uint8_t copy_len = min(title_len, SCREEN_COL80_WIDTH);
+        mem_cpy(&SCR_TEXT[y][x + 1], title, copy_len);
+        x += copy_len;
         SCR_TEXT[y][++x] = ' ';
         SCR_TEXT[y][++x] = ']';
         text_demap_vram();
