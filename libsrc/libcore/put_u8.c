@@ -5,10 +5,13 @@
 #include "core.h"
 
 uint16_t put_u8(uint8_t i) {
-    char c[3];
-    u8tohex(i, c, 'A');
-    uint16_t size = 3;
-    zos_err_t err = write(DEV_STDOUT, &c, &size);
+    char c[4];
+    uint16_t size;
+    zos_err_t err;
+
+    itoa(i, c, 10, 'A');
+    size = str_len(c);
+    err = write(DEV_STDOUT, c, &size);
     if(err != ERR_SUCCESS) exit(err);
     return size;
 }
