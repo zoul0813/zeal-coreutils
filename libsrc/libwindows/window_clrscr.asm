@@ -3,6 +3,8 @@
     .globl _window_clrscr
     .globl _text_map_vram
     .globl _text_demap_vram
+    .globl __address_bc
+    .globl __fill8
 	.area _TEXT
 
 WIN_X      = 0
@@ -49,7 +51,7 @@ _window_clrscr::
     ld a, WIN_Y (iy)
     add a, WIN_OFFSET (iy)
     ld b, a
-    call .address_bc
+    call __address_bc
     call _text_map_vram
 
 .row:
@@ -60,7 +62,7 @@ _window_clrscr::
     sub a, c
     ld c, a
     ld a, #CH_SPACE
-    call .fill8
+    call __fill8
     ld a, h
     add a, #0x10
     ld h, a
@@ -71,7 +73,7 @@ _window_clrscr::
     sub a, c
     ld c, a
     ld a, 1 (ix)
-    call .fill8
+    call __fill8
     ld a, h
     sub a, #0x10
     ld h, a
@@ -84,47 +86,4 @@ _window_clrscr::
     pop bc
     pop ix
     pop iy
-    ret
-
-.address_bc:
-    ld l, b
-    ld h, #0
-    ld d, h
-    ld e, l
-    add hl, hl
-    add hl, hl
-    add hl, de
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    ld a, l
-    add a, c
-    ld l, a
-    ret nc
-    inc h
-    ret
-
-.fill8:
-    push af
-    ld b, #0
-    ld a, c
-    or a
-    jr z, .fill_empty
-    pop af
-    push hl
-    ld (hl), a
-    dec bc
-    ld a, b
-    or c
-    jr z, .fill_done
-    push hl
-    pop de
-    inc de
-    ldir
-.fill_done:
-    pop hl
-    ret
-.fill_empty:
-    pop af
     ret

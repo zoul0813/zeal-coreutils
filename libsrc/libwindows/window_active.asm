@@ -3,6 +3,8 @@
     .globl _window_active
     .globl _text_map_vram
     .globl _text_demap_vram
+    .globl __address_bc
+    .globl __fill8
 	.area _TEXT
 
 WIN_X            = 0
@@ -65,30 +67,39 @@ _window_active::
     ; Horizontal border color spans.
     ld b, WIN_Y (iy)
     ld c, WIN_X (iy)
-    call .color_address_bc
+    call __address_bc
+    ld a, h
+    add a, #0x10
+    ld h, a
     ld c, WIN_W (iy)
     ld a, 0 (ix)
-    call .fill8
+    call __fill8
 
     ld a, WIN_Y (iy)
     add a, WIN_H (iy)
     dec a
     ld b, a
     ld c, WIN_X (iy)
-    call .color_address_bc
+    call __address_bc
+    ld a, h
+    add a, #0x10
+    ld h, a
     ld c, WIN_W (iy)
     ld a, 0 (ix)
-    call .fill8
+    call __fill8
 
     ; Vertical border color cells, excluding corners.
     ld a, WIN_H (iy)
     sub a, #2
     ld 1 (ix), a
-    jr z, .done
+    jp z, .done
     ld b, WIN_Y (iy)
     inc b
     ld c, WIN_X (iy)
-    call .color_address_bc
+    call __address_bc
+    ld a, h
+    add a, #0x10
+    ld h, a
     ld de, #80
 .vertical:
     ld a, 0 (ix)
@@ -155,63 +166,17 @@ _window_active::
 .title_positioned:
     inc c                   ; current C code colors x+1 through x+len
     ld b, WIN_Y (iy)
-    call .color_address_bc
+    call __address_bc
+    ld a, h
+    add a, #0x10
+    ld h, a
     ld c, 1 (ix)
     ld a, 0 (ix)
-    call .fill8
+    call __fill8
 
 .done:
     call _text_demap_vram
     pop bc
     pop ix
     pop iy
-    ret
-
-; B=y, C=x -> HL=SCR_COLOR+y*80+x.
-.color_address_bc:
-    ld l, b
-    ld h, #0
-    ld d, h
-    ld e, l
-    add hl, hl
-    add hl, hl
-    add hl, de
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    ld a, l
-    add a, c
-    ld l, a
-    jr nc, .color_plane
-    inc h
-.color_plane:
-    ld a, h
-    add a, #0x10
-    ld h, a
-    ret
-
-; Fill C bytes at HL with A; return original HL.
-.fill8:
-    push af
-    ld b, #0
-    ld a, c
-    or a
-    jr z, .fill_empty
-    pop af
-    push hl
-    ld (hl), a
-    dec bc
-    ld a, b
-    or c
-    jr z, .fill_done
-    push hl
-    pop de
-    inc de
-    ldir
-.fill_done:
-    pop hl
-    ret
-.fill_empty:
-    pop af
     ret

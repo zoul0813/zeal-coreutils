@@ -6,6 +6,7 @@
     .globl _mem_cpy
     .globl _text_map_vram
     .globl _text_demap_vram
+    .globl __address_bc
 	.area _TEXT
 
 WIN_X = 0
@@ -51,7 +52,7 @@ _window_title::
     call _text_map_vram
     ld b, WIN_Y (iy)
     ld c, 1 (ix)
-    call .address_bc
+    call __address_bc
     ld (hl), #'['
     inc hl
     ld (hl), #CH_SPACE
@@ -86,23 +87,4 @@ _window_title::
     pop de
     pop ix
     pop iy
-    ret
-
-.address_bc:
-    ld l, b
-    ld h, #0
-    ld d, h
-    ld e, l
-    add hl, hl
-    add hl, hl
-    add hl, de
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    add hl, hl
-    ld a, l
-    add a, c
-    ld l, a
-    ret nc
-    inc h
     ret

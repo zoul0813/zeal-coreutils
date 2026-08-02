@@ -5,6 +5,8 @@
     .globl _window_title
     .globl _text_map_vram
     .globl _text_demap_vram
+    .globl __address_bc
+    .globl __fill8
 
 	.area _TEXT
 
@@ -81,19 +83,19 @@ _window::
     ; Base rectangle: w rows in text and color planes.
     ld b, WIN_Y (iy)
     ld c, WIN_X (iy)
-    call .address_bc
+    call __address_bc
     ld a, WIN_H (iy)
     ld 0 (ix), a
 .base_row:
     ld c, WIN_W (iy)
     ld a, #CH_SPACE
-    call .fill8
+    call __fill8
     ld a, h
     add a, #0x10
     ld h, a
     ld c, WIN_W (iy)
     ld a, 1 (ix)
-    call .fill8
+    call __fill8
     ld a, h
     sub a, #0x10
     ld h, a
@@ -126,7 +128,7 @@ _window::
 .draw_border:
     ld b, WIN_Y (iy)
     ld c, WIN_X (iy)
-    call .address_bc        ; HL = top-left
+    call __address_bc       ; HL = top-left
     push hl
     ld (hl), #CH_ULCORNER
     ld a, WIN_W (iy)
@@ -159,19 +161,19 @@ _window::
     sub a, #2
     ld c, a
     ld a, #CH_HLINE
-    call .fill8
+    call __fill8
     pop hl                  ; top-left
     inc hl
     ld a, WIN_W (iy)
     sub a, #2
     ld c, a
     ld a, #CH_HLINE
-    call .fill8
+    call __fill8
 
     ld b, WIN_Y (iy)
     inc b
     ld c, WIN_X (iy)
-    call .address_bc        ; first interior left edge
+    call __address_bc       ; first interior left edge
     ld a, WIN_H (iy)
     sub a, #2
     ld 0 (ix), a
@@ -199,7 +201,7 @@ _window::
     ld a, WIN_X (iy)
     add a, WIN_W (iy)
     ld c, a
-    call .address_bc
+    call __address_bc
     ld a, WIN_H (iy)
     dec a
     ld 0 (ix), a
@@ -225,60 +227,15 @@ _window::
     ld a, WIN_X (iy)
     inc a
     ld c, a
-    call .address_bc
+    call __address_bc
     ld c, WIN_W (iy)
     ld a, #CH_SPACE
-    call .fill8
+    call __fill8
     ld a, h
     add a, #0x10
     ld h, a
     ld c, WIN_W (iy)
     ld a, WIN_FG (iy)
     and #0x0f
-    call .fill8
-    ret
-
-; Input B=y, C=x. Return HL = SCR_TEXT + y*80+x. Clobbers AF, DE.
-.address_bc:
-    ld l, b
-    ld h, #0
-    ld d, h
-    ld e, l
-    add hl, hl              ; y*2
-    add hl, hl              ; y*4
-    add hl, de              ; y*5
-    add hl, hl              ; y*10
-    add hl, hl              ; y*20
-    add hl, hl              ; y*40
-    add hl, hl              ; y*80
-    ld a, l
-    add a, c
-    ld l, a
-    ret nc
-    inc h
-    ret
-
-; Fill C bytes at HL with A. Return original HL. Clobbers AF, BC, DE.
-.fill8:
-    push af
-    ld b, #0
-    ld a, c
-    or a
-    jr z, .fill_empty
-    pop af
-    push hl
-    ld (hl), a
-    dec bc
-    ld a, b
-    or c
-    jr z, .fill_done
-    push hl
-    pop de
-    inc de
-    ldir
-.fill_done:
-    pop hl
-    ret
-.fill_empty:
-    pop af
+    call __fill8
     ret

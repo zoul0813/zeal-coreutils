@@ -16,6 +16,8 @@ add_library(windows STATIC
     window_putc.asm
     window_puts.asm
     banners.c
+    address_bc.asm
+    fill8.asm
 )
 
 target_include_directories(windows PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
