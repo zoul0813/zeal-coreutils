@@ -3,7 +3,7 @@ add_library(windows STATIC
     window_globals.asm
     window_title.asm
     window.asm
-    window_active.c
+    window_active.asm
     window_columns.asm
     window_gotox.asm
     window_gotoy.asm
