@@ -1,16 +1,18 @@
 add_library(windows STATIC
     vram.asm
+    window_globals.asm
+    window_title.asm
     window.asm
     window_active.c
     window_columns.asm
-    window_gotox.c
-    window_gotoy.c
-    window_gotoxy.c
-    window_clrscr.c
-    window_clreol.c
+    window_gotox.asm
+    window_gotoy.asm
+    window_gotoxy.asm
+    window_clrscr.asm
+    window_clreol.asm
     window_save.c
-    window_wherex.c
-    window_wherey.c
+    window_wherex.asm
+    window_wherey.asm
     window_putc.asm
     window_puts.asm
     banners.c

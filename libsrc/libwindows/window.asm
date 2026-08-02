@@ -3,19 +3,8 @@
 
     .globl _window
     .globl _window_title
-    .globl _win_None
-    .globl _win_NonePtr
-    .globl _str_len
-    .globl _min
-    .globl _mem_cpy
     .globl _text_map_vram
     .globl _text_demap_vram
-
-	.area _INITIALIZED
-_win_None::
-    .ds 13
-_win_NonePtr::
-    .ds 2
 
 	.area _TEXT
 
@@ -41,94 +30,6 @@ CH_LLCORNER = 0xc0
 CH_LRCORNER = 0xd9
 CH_HLINE    = 0xc4
 CH_VLINE    = 0xb3
-
-;------------------------------------------------------------------------------
-; void window_title(window_t* w, const char* title)
-;
-; HL = w, DE = title. Uses libcore string/copy routines and preserves IX/IY.
-;
-; IX local frame:
-;   0 = copy length
-;   1 = title x
-;   2..3 = title length
-;   4..5 = w
-;   6..7 = title
-;------------------------------------------------------------------------------
-_window_title::
-    ld a, d
-    or e
-    ret z
-
-    push iy
-    push ix
-    push de                 ; title
-    push hl                 ; w
-    push bc                 ; title length
-    push bc                 ; copy length / x
-    ld ix, #0
-    add ix, sp
-    push hl
-    pop iy                  ; IY = w
-
-    ex de, hl               ; HL = title
-    call _str_len           ; DE = title length
-    ld 2 (ix), e
-    ld 3 (ix), d
-
-    ld a, e
-    add a, #4
-    ld c, a                 ; C = displayed title width
-    ld a, WIN_W (iy)
-    sub a, c
-    ld l, a
-    sbc a, a                ; sign-extend w - displayed width
-    ld h, a
-    sra h
-    rr l                    ; signed divide by two, matching generated C
-    ld a, l
-    add a, WIN_X (iy)
-    ld 1 (ix), a            ; x
-
-    call _text_map_vram
-    ld b, WIN_Y (iy)
-    ld c, 1 (ix)
-    call .address_bc
-    ld (hl), #'['
-    inc hl
-    ld (hl), #CH_SPACE
-    inc hl                  ; HL = title destination
-    push hl
-
-    ld l, 2 (ix)
-    ld h, 3 (ix)
-    ld de, #80
-    call _min               ; DE = min(title length, 80)
-    ld 0 (ix), e
-    ld c, e
-    ld b, #0
-    ld e, 6 (ix)
-    ld d, 7 (ix)
-    pop hl                  ; destination
-    push bc                 ; uint16_t copy size
-    call _mem_cpy           ; DE = original destination
-
-    ld l, e
-    ld h, d
-    ld c, 0 (ix)
-    ld b, #0
-    add hl, bc
-    ld (hl), #CH_SPACE
-    inc hl
-    ld (hl), #']'
-    call _text_demap_vram
-
-    pop bc
-    pop bc
-    pop hl
-    pop de
-    pop ix
-    pop iy
-    ret
 
 ;------------------------------------------------------------------------------
 ; void window(window_t* w)
@@ -381,11 +282,3 @@ _window::
 .fill_empty:
     pop af
     ret
-
-	.area _INITIALIZER
-__xinit__win_None:
-    .db 0, 0, 0, 0, 0, 0, 0, 0
-    .dw 0
-    .db 0, 0, 0
-__xinit__win_NonePtr:
-    .dw _win_None
