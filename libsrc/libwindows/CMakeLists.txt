@@ -1,4 +1,5 @@
 add_library(windows STATIC
+    dialogs.c
     vram.asm
     globals.asm
     window_title.asm
