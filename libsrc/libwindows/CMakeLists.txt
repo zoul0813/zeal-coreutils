@@ -1,6 +1,6 @@
 add_library(windows STATIC
     vram.asm
-    window.c
+    window.asm
     window_active.c
     window_columns.asm
     window_gotox.c
