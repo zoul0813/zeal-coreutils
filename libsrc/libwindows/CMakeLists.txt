@@ -1,6 +1,6 @@
 add_library(windows STATIC
     vram.asm
-    window_globals.asm
+    globals.asm
     window_title.asm
     window.asm
     window_active.asm
@@ -10,7 +10,9 @@ add_library(windows STATIC
     window_gotoxy.asm
     window_clrscr.asm
     window_clreol.asm
-    window_save.c
+    window_save.asm
+    window_restore.asm
+    mirror.asm
     window_wherex.asm
     window_wherey.asm
     window_putc.asm

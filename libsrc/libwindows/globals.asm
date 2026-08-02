@@ -1,4 +1,4 @@
-	.module window_globals
+	.module globals
 	.optsdcc -mz80
     .globl _win_None
     .globl _win_NonePtr
